@@ -1,0 +1,25 @@
+var structmpu9250__handle__s =
+[
+    [ "buf", "structmpu9250__handle__s.html#af092536759e2ee6fd612ad533071c925", null ],
+    [ "debug_print", "structmpu9250__handle__s.html#ab0f5d5f0b60d6211a5583515dff5ef8a", null ],
+    [ "delay_ms", "structmpu9250__handle__s.html#ac7e3b9780a7f8a7485e3974e18a4ae8e", null ],
+    [ "dmp_inited", "structmpu9250__handle__s.html#a8c063ce2e3bc077ae192fc6d7527768d", null ],
+    [ "dmp_orient_callback", "structmpu9250__handle__s.html#a6d7df197a42b39ff078cf99a621d9ada", null ],
+    [ "dmp_tap_callback", "structmpu9250__handle__s.html#a51d8f5ed73d173ac0fdbbcefa8cce67a", null ],
+    [ "iic_addr", "structmpu9250__handle__s.html#afb9280aee94c186cf2195bc126873b2b", null ],
+    [ "iic_deinit", "structmpu9250__handle__s.html#a1f4ec140fd87e0de6d2e8a15ed0fc6a2", null ],
+    [ "iic_init", "structmpu9250__handle__s.html#a75a0609d067dbdd04f1ef306a0545655", null ],
+    [ "iic_read", "structmpu9250__handle__s.html#a37c97dfa277a8dada341451c5680c208", null ],
+    [ "iic_spi", "structmpu9250__handle__s.html#ac719c4e4deebe7d151e0cee28fff35c9", null ],
+    [ "iic_write", "structmpu9250__handle__s.html#ab77b9faafe9e67c8c4592caacda12e30", null ],
+    [ "inited", "structmpu9250__handle__s.html#aa37070c2b97f017f29d837a5f127414f", null ],
+    [ "mag_asa", "structmpu9250__handle__s.html#acc9c5c6c98250b29879e72ae081fb60a", null ],
+    [ "mag_inited", "structmpu9250__handle__s.html#aae40af455da5e1fec5b7d442e2e3f238", null ],
+    [ "mask", "structmpu9250__handle__s.html#a504bec9bf15b5c3ee484e8d0c5dd15b5", null ],
+    [ "orient", "structmpu9250__handle__s.html#a171560a33ab2775f57808c3f1d891d66", null ],
+    [ "receive_callback", "structmpu9250__handle__s.html#a969ed270047178386e24151e2c26b1a5", null ],
+    [ "spi_deinit", "structmpu9250__handle__s.html#a1bbb2b16cdebcbd9f08ada6518c2f6ea", null ],
+    [ "spi_init", "structmpu9250__handle__s.html#a7e6a801a36d2969db9bcc2853cd3d78c", null ],
+    [ "spi_read", "structmpu9250__handle__s.html#ad5c9df787ac8e56672fa115b96816371", null ],
+    [ "spi_write", "structmpu9250__handle__s.html#aad7b2e38545ae4d19cdcaccd24076820", null ]
+];
