@@ -29,15 +29,15 @@ LibDriver MPU9250 is the full function driver of mpu9250 launched by LibDriver. 
 
 /src includes LibDriver MPU9250 source files.
 
-/interface includes LibDriver MPU9250 IIC, SPI platform independent template。
+/interface includes LibDriver MPU9250 IIC, SPI platform independent template.
 
-/test includes LibDriver MPU9250 driver test code and this code can test the chip necessary function simply。
+/test includes LibDriver MPU9250 driver test code and this code can test the chip necessary function simply.
 
 /example includes LibDriver MPU9250 sample code.
 
 /doc includes LibDriver MPU9250 offline document.
 
-/datasheet includes MPU9250 datasheet。
+/datasheet includes MPU9250 datasheet.
 
 /project includes the common Linux and MCU development board sample code. All projects use the shell script to debug the driver and the detail instruction can be found in each project's README.md.
 
@@ -52,6 +52,8 @@ Add /src, /interface and /example to your project.
 #### example basic
 
 ```C
+#include "driver_mpu9250_basic.h"
+
 uint8_t res;
 uint32_t i;
 uint32_t times;
@@ -126,6 +128,8 @@ return 0;
 #### example fifo
 
 ```C
+#include "driver_mpu9250_fifo.h"
+
 uint32_t i;
 uint32_t times;
 uint16_t len;
@@ -212,6 +216,8 @@ return 0;
 #### example dmp
 
 ```C
+#include "driver_mpu9250_dmp.h"
+
 uint32_t i;
 uint32_t times;
 uint32_t cnt;
