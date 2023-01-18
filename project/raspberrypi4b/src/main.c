@@ -44,6 +44,7 @@
 #include "driver_mpu9250_fifo.h"
 #include "driver_mpu9250_dmp.h"
 #include "gpio.h"
+#include "mutex.h"
 #include <getopt.h>
 #include <stdlib.h>
 
