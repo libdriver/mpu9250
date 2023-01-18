@@ -52,7 +52,7 @@ extern "C"{
  * @brief mpu9250 fifo example default definition
  */
 #define MPU9250_FIFO_DEFAULT_CLOCK_SOURCE                   MPU9250_CLOCK_SOURCE_PLL                  /**< pll */
-#define MPU9250_FIFO_DEFAULT_RATE                           200                                       /**< 200Hz */
+#define MPU9250_FIFO_DEFAULT_RATE                           50                                        /**< 50Hz */
 #define MPU9250_FIFO_DEFAULT_ACCELEROMETER_RANGE            MPU9250_ACCELEROMETER_RANGE_2G            /**< 2g */
 #define MPU9250_FIFO_DEFAULT_GYROSCOPE_RANGE                MPU9250_GYROSCOPE_RANGE_2000DPS           /**< 2000dps */
 #define MPU9250_FIFO_DEFAULT_LOW_PASS_FILTER                MPU9250_LOW_PASS_FILTER_3                 /**< low pass filter 3 */

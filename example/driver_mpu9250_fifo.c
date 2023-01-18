@@ -378,16 +378,6 @@ uint8_t mpu9250_fifo_init(mpu9250_interface_t interface, mpu9250_address_t addr_
         return 1;
     }
     
-    /* enable fifo */
-    res = mpu9250_set_fifo(&gs_handle, MPU9250_BOOL_TRUE);
-    if (res != 0)
-    {
-        mpu9250_interface_debug_print("mpu9250: set fifo failed.\n");
-        (void)mpu9250_deinit(&gs_handle);
-       
-        return 1;
-    }
-    
     /* set the default interrupt level */
     res = mpu9250_set_interrupt_level(&gs_handle, MPU9250_FIFO_DEFAULT_INTERRUPT_PIN_LEVEL);
     if (res != 0)
@@ -740,6 +730,16 @@ uint8_t mpu9250_fifo_init(mpu9250_interface_t interface, mpu9250_address_t addr_
            
             return 1;
         }
+    }
+    
+    /* enable fifo */
+    res = mpu9250_set_fifo(&gs_handle, MPU9250_BOOL_TRUE);
+    if (res != 0)
+    {
+        mpu9250_interface_debug_print("mpu9250: set fifo failed.\n");
+        (void)mpu9250_deinit(&gs_handle);
+       
+        return 1;
     }
     
     /* force fifo reset */

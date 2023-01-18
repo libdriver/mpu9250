@@ -78,7 +78,13 @@ uint8_t mpu9250_interface_iic_deinit(void)
  */
 uint8_t mpu9250_interface_iic_read(uint8_t addr, uint8_t reg, uint8_t *buf, uint16_t len)
 {
-    return iic_read(addr, reg, buf, len);
+    uint8_t res;
+    
+    __disable_irq();
+    res = iic_read(addr, reg, buf, len);
+    __enable_irq();
+    
+    return res;
 }
 
 /**
@@ -94,7 +100,13 @@ uint8_t mpu9250_interface_iic_read(uint8_t addr, uint8_t reg, uint8_t *buf, uint
  */
 uint8_t mpu9250_interface_iic_write(uint8_t addr, uint8_t reg, uint8_t *buf, uint16_t len)
 {
-    return iic_write(addr, reg, buf, len);
+    uint8_t res;
+    
+    __disable_irq();
+    res = iic_write(addr, reg, buf, len);
+    __enable_irq();
+    
+    return res;
 }
 
 /**
@@ -178,7 +190,7 @@ void mpu9250_interface_debug_print(const char *const fmt, ...)
     va_end(args);
     
     len = strlen((char *)str);
-    (void)uart1_write((uint8_t *)str, len);
+    (void)uart_write((uint8_t *)str, len);
 }
 
 /**
