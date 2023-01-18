@@ -44,18 +44,19 @@
 #include "driver_mpu9250_fifo.h"
 #include "driver_mpu9250_dmp.h"
 #include "shell.h"
+#include "mutex.h"
 #include "clock.h"
 #include "delay.h"
 #include "gpio.h"
 #include "uart.h"
+#include "getopt.h"
 #include <stdlib.h>
 
 /**
  * @brief global var definition
  */
 uint8_t g_buf[256];                        /**< uart buffer */
-uint16_t g_len;                            /**< uart buffer length */
-uint8_t g_flag;                            /**< interrupt flag */
+volatile uint16_t g_len;                   /**< uart buffer length */
 uint8_t (*g_gpio_irq)(void) = NULL;        /**< gpio irq */
 static int16_t gs_accel_raw[128][3];       /**< accel raw buffer */
 static float gs_accel_g[128][3];           /**< accel g buffer */
@@ -67,7 +68,7 @@ static int32_t gs_quat[128][4];            /**< quat buffer */
 static float gs_pitch[128];                /**< pitch buffer */
 static float gs_roll[128];                 /**< roll buffer */
 static float gs_yaw[128];                  /**< yaw buffer */
-static uint8_t gs_flag;                    /**< flag */
+static volatile uint8_t gs_flag;           /**< flag */
 
 /**
  * @brief exti 0 irq
@@ -87,10 +88,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin)
 {
     if (pin == GPIO_PIN_0)
     {
-        if (g_gpio_irq)
-        {
-            g_gpio_irq();
-        }
+        /* run the callback in the mutex mode */
+        mutex_irq(g_gpio_irq);
     }
 }
 
@@ -262,1094 +261,804 @@ static void a_dmp_orient_callback(uint8_t orientation)
  */
 uint8_t mpu9250(uint8_t argc, char **argv)
 {
+    int c;
+    int longindex = 0;
+    const char short_options[] = "hipe:t:";
+    const struct option long_options[] =
+    {
+        {"help", no_argument, NULL, 'h'},
+        {"information", no_argument, NULL, 'i'},
+        {"port", no_argument, NULL, 'p'},
+        {"example", required_argument, NULL, 'e'},
+        {"test", required_argument, NULL, 't'},
+        {"addr", required_argument, NULL, 1},
+        {"interface", required_argument, NULL, 2},
+        {"times", required_argument, NULL, 3},
+        {NULL, 0, NULL, 0},
+    };
+    char type[32] = "unknow";
+    uint32_t times = 3;
+    mpu9250_address_t addr = MPU9250_ADDRESS_AD0_LOW;
+    mpu9250_interface_t interface = MPU9250_INTERFACE_IIC;
+    
+    /* if no params */
     if (argc == 1)
     {
+        /* goto the help */
         goto help;
     }
-    else if (argc == 2)
+    
+    /* init 0 */
+    optind = 0;
+    
+    /* parse */
+    do
     {
-        if (strcmp("-i", argv[1]) == 0)
+        /* parse the args */
+        c = getopt_long(argc, argv, short_options, long_options, &longindex);
+        
+        /* judge the result */
+        switch (c)
         {
-            mpu9250_info_t info;
+            /* help */
+            case 'h' :
+            {
+                /* set the type */
+                memset(type, 0, sizeof(char) * 32);
+                snprintf(type, 32, "h");
+                
+                break;
+            }
             
-            /* print mpu9250 info */
-            mpu9250_info(&info);
-            mpu9250_interface_debug_print("mpu9250: chip is %s.\n", info.chip_name);
-            mpu9250_interface_debug_print("mpu9250: manufacturer is %s.\n", info.manufacturer_name);
-            mpu9250_interface_debug_print("mpu9250: interface is %s.\n", info.interface);
-            mpu9250_interface_debug_print("mpu9250: driver version is %d.%d.\n", info.driver_version / 1000, (info.driver_version % 1000) / 100);
-            mpu9250_interface_debug_print("mpu9250: min supply voltage is %0.1fV.\n", info.supply_voltage_min_v);
-            mpu9250_interface_debug_print("mpu9250: max supply voltage is %0.1fV.\n", info.supply_voltage_max_v);
-            mpu9250_interface_debug_print("mpu9250: max current is %0.2fmA.\n", info.max_current_ma);
-            mpu9250_interface_debug_print("mpu9250: max temperature is %0.1fC.\n", info.temperature_max);
-            mpu9250_interface_debug_print("mpu9250: min temperature is %0.1fC.\n", info.temperature_min);
+            /* information */
+            case 'i' :
+            {
+                /* set the type */
+                memset(type, 0, sizeof(char) * 32);
+                snprintf(type, 32, "i");
+                
+                break;
+            }
             
-            return 0;
+            /* port */
+            case 'p' :
+            {
+                /* set the type */
+                memset(type, 0, sizeof(char) * 32);
+                snprintf(type, 32, "p");
+                
+                break;
+            }
+            
+            /* example */
+            case 'e' :
+            {
+                /* set the type */
+                memset(type, 0, sizeof(char) * 32);
+                snprintf(type, 32, "e_%s", optarg);
+                
+                break;
+            }
+            
+            /* test */
+            case 't' :
+            {
+                /* set the type */
+                memset(type, 0, sizeof(char) * 32);
+                snprintf(type, 32, "t_%s", optarg);
+                
+                break;
+            }
+            
+            /* addr */
+            case 1 :
+            {
+                /* set the addr pin */
+                if (strcmp("0", optarg) == 0)
+                {
+                    addr = MPU9250_ADDRESS_AD0_LOW;
+                }
+                else if (strcmp("1", optarg) == 0)
+                {
+                    addr = MPU9250_ADDRESS_AD0_HIGH;
+                }
+                else
+                {
+                    return 5;
+                }
+                
+                break;
+            }
+            
+            /* interface */
+            case 2 :
+            {
+                /* set the interface */
+                if (strcmp("iic", optarg) == 0)
+                {
+                    interface = MPU9250_INTERFACE_IIC;
+                }
+                else if (strcmp("spi", optarg) == 0)
+                {
+                    interface = MPU9250_INTERFACE_SPI;
+                }
+                else
+                {
+                    return 5;
+                }
+                
+                break;
+            }
+
+            /* running times */
+            case 3 :
+            {
+                /* set the times */
+                times = atol(optarg);
+                
+                break;
+            } 
+            
+            /* the end */
+            case -1 :
+            {
+                break;
+            }
+            
+            /* others */
+            default :
+            {
+                return 5;
+            }
         }
-        else if (strcmp("-p", argv[1]) == 0)
+    } while (c != -1);
+
+    /* run the function */
+    if (strcmp("t_reg", type) == 0)
+    {
+        /* run reg test */
+        if (mpu9250_register_test(interface, addr) != 0)
         {
-            /* print pin connection */
-            
-            mpu9250_interface_debug_print("mpu9250: SPI interface SCK connected to GPIOA PIN5.\n");
-            mpu9250_interface_debug_print("mpu9250: SPI interface MISO connected to GPIOA PIN6.\n");
-            mpu9250_interface_debug_print("mpu9250: SPI interface MOSI connected to GPIOA PIN7.\n");
-            mpu9250_interface_debug_print("mpu9250: SPI interface CS connected to GPIOA PIN4.\n");
-            mpu9250_interface_debug_print("mpu9250: SCL connected to GPIOB PIN8.\n");
-            mpu9250_interface_debug_print("mpu9250: SDA connected to GPIOB PIN9.\n");
-            mpu9250_interface_debug_print("mpu9250: INT connected to GPIOB PIN0.\n");
-            
-            return 0;
-        }
-        else if (strcmp("-h", argv[1]) == 0)
-        {
-            /* show mpu9250 help */
-            
-            help:
-            mpu9250_interface_debug_print("mpu9250 -i\n\tshow mpu9250 chip and driver information.\n");
-            mpu9250_interface_debug_print("mpu9250 -h\n\tshow mpu9250 help.\n");
-            mpu9250_interface_debug_print("mpu9250 -p\n\tshow mpu9250 pin connections of the current board.\n");
-            mpu9250_interface_debug_print("mpu9250 -t reg (-iic (0 | 1) | -spi)\n\trun mpu9250 register test.\n");
-            mpu9250_interface_debug_print("mpu9250 -t read <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 read test.times means the test times.\n");
-            mpu9250_interface_debug_print("mpu9250 -t fifo <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 fifo test.times means the test times.\n");
-            mpu9250_interface_debug_print("mpu9250 -t dmp <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 dmp test.times means the test times.\n");
-            mpu9250_interface_debug_print("mpu9250 -t motion (-iic (0 | 1) | -spi)\n\trun mpu9250 motion test.\n");
-            mpu9250_interface_debug_print("mpu9250 -t pedometer <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 pedometer test.times means the test times.\n");
-            mpu9250_interface_debug_print("mpu9250 -c read <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 read function.times means the read times.\n");
-            mpu9250_interface_debug_print("mpu9250 -c fifo <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 fifo function. times means the read times.\n");
-            mpu9250_interface_debug_print("mpu9250 -c dmp <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 dmp function.times means the read times.\n");
-            mpu9250_interface_debug_print("mpu9250 -c motion (-iic (0 | 1) | -spi)\n\trun mpu9250 motion function.\n");
-            mpu9250_interface_debug_print("mpu9250 -c pedometer <times> (-iic (0 | 1) | -spi)\n\trun mpu9250 pedometer function.times means the read times.\n");
-            
-            return 0;
+            return 1;
         }
         else
         {
-            return 5;
+            return 0;
         }
     }
-    else if (argc == 4)
+    else if (strcmp("t_read", type) == 0)
     {
-        /* run test */
-        if (strcmp("-t", argv[1]) == 0)
+        /* run read test */
+        if (mpu9250_read_test(interface, addr, times) != 0)
         {
-            /* reg test */
-            if (strcmp("reg", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[3]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* run reg test */
-                if (mpu9250_register_test(MPU9250_INTERFACE_SPI, MPU9250_ADDRESS_AD0_LOW) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            /* motion function */
-            else if (strcmp("motion", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[3]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
+            return 1;
         }
-        else if (strcmp("-c", argv[1]) == 0)
-        {
-            /* motion test */
-            if (strcmp("motion", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[3]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
-        }
-        /* param is invalid */
         else
         {
-            return 5;
+            return 0;
         }
     }
-    else if (argc == 5)
+    else if (strcmp("t_fifo", type) == 0)
     {
-        /* run test */
-        if (strcmp("-t", argv[1]) == 0)
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
         {
-            /* reg test */
-            if (strcmp("reg", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[3]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                /* run reg test */
-                if (mpu9250_register_test(MPU9250_INTERFACE_IIC, addr) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            /* motion test */
-            else if (strcmp("motion", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[3]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_dmp_tap_orient_motion_test_irq_handler;
-                
-                /* run reg test */
-                if (mpu9250_dmp_tap_orient_motion_test(MPU9250_INTERFACE_IIC, addr) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* read test */
-            else if (strcmp("read", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* run the read test */
-                if (mpu9250_read_test(MPU9250_INTERFACE_SPI, MPU9250_ADDRESS_AD0_LOW, atoi(argv[3])) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            /* fifo test */
-            else if (strcmp("fifo", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_fifo_test_irq_handler;
-                if (mpu9250_fifo_test(MPU9250_INTERFACE_SPI, MPU9250_ADDRESS_AD0_LOW, atoi(argv[3])) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* dmp test */
-            else if (strcmp("dmp", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
-            }
-            /* pedometer test */
-            else if (strcmp("pedometer", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
+            return 1;
         }
-        /* run function */
-        else if (strcmp("-c", argv[1]) == 0)
+        
+        /* don't need */
+        g_gpio_irq = NULL;
+        
+        /* mutex lock */
+        (void)mutex_lock();
+        
+        /* run fifo test */
+        if (mpu9250_fifo_test(interface, addr, times) != 0)
         {
-            /* motion function */
-            if (strcmp("motion", argv[2]) == 0)
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            (void)mutex_unlock();
+            
+            return 1;
+        }
+        
+        /* mutex unlock */
+        (void)mutex_unlock();
+        
+        /* gpio deinit */
+        g_gpio_irq = NULL;
+        (void)gpio_interrupt_deinit();
+        
+        return 0;
+    }
+    else if (strcmp("t_dmp", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set gpio irq callback */
+        g_gpio_irq = mpu9250_dmp_read_test_irq_handler;
+        
+        /* mutex lock */
+        (void)mutex_lock();
+        
+        /* run dmp test */
+        if (mpu9250_dmp_read_test(interface, addr, times) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            (void)mutex_unlock();
+            
+            return 1;
+        }
+        
+        /* mutex unlock */
+        (void)mutex_unlock();
+        
+        /* gpio deinit */
+        g_gpio_irq = NULL;
+        (void)gpio_interrupt_deinit();
+        
+        return 0;
+    }
+    else if (strcmp("t_motion", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set gpio irq callback */
+        g_gpio_irq = mpu9250_dmp_tap_orient_motion_test_irq_handler;
+        
+        /* run motion test */
+        if (mpu9250_dmp_tap_orient_motion_test(interface, addr) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 1;
+        }
+        
+        /* gpio deinit */
+        g_gpio_irq = NULL;
+        (void)gpio_interrupt_deinit();
+        
+        return 0;
+    }
+    else if (strcmp("t_pedometer", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set the gpio callback */
+        g_gpio_irq = mpu9250_dmp_pedometer_test_irq_handler;
+        
+        /* mutex lock */
+        (void)mutex_lock();
+        
+        /* run pedometer test */
+        if (mpu9250_dmp_pedometer_test(interface, addr, times) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            (void)mutex_unlock();
+            
+            return 1;
+        }
+        
+        /* mutex unlock */
+        (void)mutex_unlock();
+        
+        /* gpio deinit */
+        g_gpio_irq = NULL;
+        (void)gpio_interrupt_deinit();
+        
+        return 0;
+    }
+    else if (strcmp("e_read", type) == 0)
+    {
+        /* basic init */
+        if (mpu9250_basic_init(interface, addr) != 0)
+        {
+            return 1;
+        }
+        else
+        {
+            uint32_t i;
+            float g[3];
+            float dps[3];
+            float ut[3];
+            float degrees;
+            
+            /* loop */
+            for (i = 0; i < times; i++)
             {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[3]) != 0)
+                /* read data */
+                if (mpu9250_basic_read(g, dps, ut) != 0)
                 {
-                    return 5;
-                }
-                if (strcmp("0", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[4]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
+                    (void)mpu9250_basic_deinit();
+                    
                     return 1;
                 }
-                g_gpio_irq = mpu9250_dmp_irq_handler;
                 
-                /* run dmp function */
-                if (mpu9250_dmp_init(MPU9250_INTERFACE_IIC, addr, a_receive_callback, 
-                                     a_dmp_tap_callback, a_dmp_orient_callback) != 0)
+                /* read temperature */
+                if (mpu9250_basic_read_temperature(&degrees) != 0)
                 {
+                    (void)mpu9250_basic_deinit();
+                    
+                    return 1;
+                }
+                
+                /* output */
+                mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
+                mpu9250_interface_debug_print("mpu9250: acc x is %0.2fg.\n", g[0]);
+                mpu9250_interface_debug_print("mpu9250: acc y is %0.2fg.\n", g[1]);
+                mpu9250_interface_debug_print("mpu9250: acc z is %0.2fg.\n", g[2]);
+                mpu9250_interface_debug_print("mpu9250: gyro x is %0.2fdps.\n", dps[0]);
+                mpu9250_interface_debug_print("mpu9250: gyro y is %0.2fdps.\n", dps[1]);
+                mpu9250_interface_debug_print("mpu9250: gyro z is %0.2fdps.\n", dps[2]);
+                mpu9250_interface_debug_print("mpu9250: mag x is %0.2fuT.\n", ut[0]);
+                mpu9250_interface_debug_print("mpu9250: mag y is %0.2fuT.\n", ut[1]);
+                mpu9250_interface_debug_print("mpu9250: mag z is %0.2fuT.\n", ut[2]);
+                mpu9250_interface_debug_print("mpu9250: temperature %0.2fC.\n", degrees);
+                
+                /* delay 1000 ms */
+                mpu9250_interface_delay_ms(1000);
+            }
+            
+            /* basic deinit */
+            (void)mpu9250_basic_deinit();
+            
+            return 0;
+        }
+    }
+    else if (strcmp("e_fifo", type) == 0)
+    {
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* don't need */
+        g_gpio_irq = NULL;
+        
+        /* fifo init */
+        if (mpu9250_fifo_init(interface, addr) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 1;
+        }
+        else
+        {
+            uint32_t i;
+            uint16_t len;
+            
+            /* delay 1000 ms */
+            mpu9250_interface_delay_ms(1000);
+            
+            /* loop */
+            for (i = 0; i < times; i++)
+            {
+                len = 128;
+                
+                /* mutex lock */
+                (void)mutex_lock();
+                
+                /* read data */
+                if (mpu9250_fifo_read(gs_accel_raw, gs_accel_g,
+                                      gs_gyro_raw, gs_gyro_dps, gs_mag_raw, gs_mag_ut, &len) != 0)
+                {
+                    (void)mpu9250_fifo_deinit();
                     g_gpio_irq = NULL;
                     (void)gpio_interrupt_deinit();
+                    (void)mutex_unlock();
                     
                     return 1;
                 }
-                else
+                
+                /* mutex unlock */
+                (void)mutex_unlock();
+                
+                /* output */
+                mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
+                mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
+                mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
+                mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
+                mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);
+                mpu9250_interface_debug_print("mpu9250: gyro x[0] is %0.2fdps.\n", gs_gyro_dps[0][0]);
+                mpu9250_interface_debug_print("mpu9250: gyro y[0] is %0.2fdps.\n", gs_gyro_dps[0][1]);
+                mpu9250_interface_debug_print("mpu9250: gyro z[0] is %0.2fdps.\n", gs_gyro_dps[0][2]);
+                mpu9250_interface_debug_print("mpu9250: mag x[0] is %0.2fuT.\n", gs_mag_ut[0][0]);
+                mpu9250_interface_debug_print("mpu9250: mag y[0] is %0.2fuT.\n", gs_mag_ut[0][1]);
+                mpu9250_interface_debug_print("mpu9250: mag z[0] is %0.2fuT.\n", gs_mag_ut[0][2]);
+                
+                /* delay 500ms */
+                mpu9250_interface_delay_ms(500);
+            }
+            
+            /* fifo deinit */
+            (void)mpu9250_fifo_deinit();
+             
+            /* gpio deinit */
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 0;
+        }
+    }
+    else if (strcmp("e_dmp", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set the gpio callback */
+        g_gpio_irq = mpu9250_dmp_irq_handler;
+        
+        /* dmp init */
+        if (mpu9250_dmp_init(interface, addr, mpu9250_interface_receive_callback, NULL, NULL) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 1;
+        }
+        else
+        {
+            uint32_t i;
+            uint16_t len;
+            
+            /* delay 500 ms */
+            mpu9250_interface_delay_ms(500);
+            
+            /* loop */
+            for (i = 0; i < times; i++)
+            {
+                len = 128;
+                
+                /* mutex lock */
+                (void)mutex_lock();
+                
+                /* read */
+                if (mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
+                                         gs_gyro_raw, gs_gyro_dps, 
+                                         gs_quat,
+                                         gs_pitch, gs_roll, gs_yaw,
+                                         &len) != 0)
                 {
-                    uint16_t i;
+                    (void)mpu9250_dmp_deinit();
+                    g_gpio_irq = NULL;
+                    (void)gpio_interrupt_deinit();
+                    (void)mutex_unlock();
                     
-                    gs_flag = 0;
-                    mpu9250_interface_delay_ms(200);
-                    for (i = 0; i < 1000; i++)
+                    return 1;
+                }
+                
+                /* mutex unlock */
+                (void)mutex_unlock();
+                
+                /* output */
+                mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
+                mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
+                mpu9250_interface_debug_print("mpu9250: pitch[0] is %0.2fdps.\n", gs_pitch[0]);
+                mpu9250_interface_debug_print("mpu9250: roll[0] is %0.2fdps.\n", gs_roll[0]);
+                mpu9250_interface_debug_print("mpu9250: yaw[0] is %0.2fdps.\n", gs_yaw[0]);
+                mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
+                mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
+                mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);
+                mpu9250_interface_debug_print("mpu9250: gyro x[0] is %0.2fdps.\n", gs_gyro_dps[0][0]);
+                mpu9250_interface_debug_print("mpu9250: gyro y[0] is %0.2fdps.\n", gs_gyro_dps[0][1]);
+                mpu9250_interface_debug_print("mpu9250: gyro z[0] is %0.2fdps.\n", gs_gyro_dps[0][2]);
+                
+                /* delay 500 ms */
+                mpu9250_interface_delay_ms(500);
+            }
+            
+            /* dmp deinit */
+            (void)mpu9250_dmp_deinit();
+            
+            /* gpio deinit */
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 0;
+        }
+    }
+    else if (strcmp("e_motion", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set the gpio callback */
+        g_gpio_irq = mpu9250_dmp_irq_handler;
+        
+        /* dmp init */
+        if (mpu9250_dmp_init(interface, addr, a_receive_callback, 
+                             a_dmp_tap_callback, a_dmp_orient_callback) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 1;
+        }
+        else
+        {
+            uint32_t i;
+            
+            /* flag init */
+            gs_flag = 0;
+            
+            /* delay 200ms */
+            mpu9250_interface_delay_ms(200);
+            
+            /* loop */
+            for (i = 0; i < 1000; i++)
+            {
+                uint16_t l;
+                uint8_t res;
+                
+                /* mutex lock */
+                (void)mutex_lock();
+                
+                /* read data */
+                l = 128;
+                res = mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
+                                           gs_gyro_raw, gs_gyro_dps,
+                                           gs_quat,
+                                           gs_pitch, gs_roll, gs_yaw,
+                                           &l
+                                          );
+                if (res != 0)
+                {
+                    /* output */
+                    mpu9250_interface_debug_print("mpu9250: dmp read failed.\n");
+                }
+                
+                /* mutex unlock */
+                (void)mutex_unlock();
+                
+                /* delay 200ms */
+                mpu9250_interface_delay_ms(200);
+                
+                /* check the flag */
+                if ((gs_flag & 0x7) == 0x7)
+                {
+                    break;
+                }
+            }
+            
+            /* finish dmp tap orient motion */
+            mpu9250_interface_debug_print("mpu9250: finish dmp tap orient motion.\n");
+            
+            /* dmp deinit */
+            (void)mpu9250_dmp_deinit();
+            
+            /* gpio deinit */
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 0;
+        }
+    }
+    else if (strcmp("e_pedometer", type) == 0)
+    {
+        if (interface == MPU9250_INTERFACE_SPI)
+        {
+            /* spi interface don't support dmp */
+            mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
+            
+            return 5;
+        }
+        
+        /* gpio init */
+        if (gpio_interrupt_init() != 0)
+        {
+            return 1;
+        }
+        
+        /* set the gpio callback */
+        g_gpio_irq = mpu9250_dmp_irq_handler;
+        
+        /* dmp init */
+        if (mpu9250_dmp_init(interface, addr, mpu9250_interface_receive_callback, NULL, NULL) != 0)
+        {
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 1;
+        }
+        else
+        {
+            uint8_t res;
+            uint32_t i;
+            uint32_t cnt = 0;
+            uint32_t cnt_check = 0;
+            
+            /* loop */
+            i = 0;
+            while (times != 0)
+            {
+                uint16_t l;
+                
+                /* delay 200 ms */
+                mpu9250_interface_delay_ms(200);
+                
+                /* mutex lock */
+                (void)mutex_lock();
+                
+                /* read data */
+                l = 128;
+                res = mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
+                                           gs_gyro_raw, gs_gyro_dps, 
+                                           gs_quat,
+                                           gs_pitch, gs_roll, gs_yaw,
+                                           &l
+                                          );
+                if (res == 0)
+                {
+                    i++;
+                    if (i > 5)
                     {
-                        uint16_t l;
-                        uint8_t res;
+                        i = 0;
                         
-                        /* read the data */
-                        l = 128;
-                        res = mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
-                                                   gs_gyro_raw, gs_gyro_dps,
-                                                   gs_quat,
-                                                   gs_pitch, gs_roll, gs_yaw,
-                                                   &l
-                                                  );
+                        /* get the pedometer step count */
+                        res = mpu9250_dmp_get_pedometer_counter(&cnt);
                         if (res != 0)
                         {
-                            /* output data */
-                            mpu9250_interface_debug_print("mpu9250: dmp read failed.\n");
-                        }
-                        mpu9250_interface_delay_ms(200);
-                        
-                        /* check the flag */
-                        if ((gs_flag & 0x7) == 0x7)
-                        {
-                            break;
-                        }
-                    }
-                    
-                    /* finish dmp tap orient motion */
-                    mpu9250_interface_debug_print("mpu9250: finish dmp tap orient motion.\n");
-                    
-                    (void)mpu9250_dmp_deinit();
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* read function */
-            else if (strcmp("read", argv[2]) == 0)
-            {
-                uint32_t times;
-                
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (mpu9250_basic_init(MPU9250_INTERFACE_SPI, MPU9250_ADDRESS_AD0_LOW) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    uint32_t i;
-                    float g[3];
-                    float dps[3];
-                    float ut[3];
-                    float degrees;
-                    
-                    for (i = 0; i < times; i++)
-                    {
-                        /* read */
-                        if (mpu9250_basic_read(g, dps, ut) != 0)
-                        {
-                            (void)mpu9250_basic_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        if (mpu9250_basic_read_temperature(&degrees) != 0)
-                        {
-                            (void)mpu9250_basic_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        /* output */
-                        mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
-                        mpu9250_interface_debug_print("mpu9250: acc x is %0.2fg.\n", g[0]);
-                        mpu9250_interface_debug_print("mpu9250: acc y is %0.2fg.\n", g[1]);
-                        mpu9250_interface_debug_print("mpu9250: acc z is %0.2fg.\n", g[2]);
-                        mpu9250_interface_debug_print("mpu9250: gyro x is %0.2fdps.\n", dps[0]);
-                        mpu9250_interface_debug_print("mpu9250: gyro y is %0.2fdps.\n", dps[1]);
-                        mpu9250_interface_debug_print("mpu9250: gyro z is %0.2fdps.\n", dps[2]);
-                        mpu9250_interface_debug_print("mpu9250: mag x is %0.2fuT.\n", ut[0]);
-                        mpu9250_interface_debug_print("mpu9250: mag y is %0.2fuT.\n", ut[1]);
-                        mpu9250_interface_debug_print("mpu9250: mag z is %0.2fuT.\n", ut[2]);
-                        mpu9250_interface_debug_print("mpu9250: temperature %0.2fC.\n", degrees);
-                        
-                        /* delay 1000 ms */
-                        mpu9250_interface_delay_ms(1000);
-                    }
-                    
-                    (void)mpu9250_basic_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* fifo function */
-            else if (strcmp("fifo", argv[2]) == 0)
-            {
-                uint32_t times;
-                
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_fifo_irq_handler;
-                if (mpu9250_fifo_init(MPU9250_INTERFACE_SPI, MPU9250_ADDRESS_AD0_LOW) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    uint32_t i;
-                    uint16_t len;
-                    
-                    /* delay 100 ms */
-                    mpu9250_interface_delay_ms(100);
-                    for (i = 0; i < times; i++)
-                    {
-                        len = 128;
-                        
-                        /* read */
-                        if (mpu9250_fifo_read(gs_accel_raw, gs_accel_g,
-                                              gs_gyro_raw, gs_gyro_dps, gs_mag_raw, gs_mag_ut, &len) != 0)
-                        {
-                            (void)mpu9250_fifo_deinit();
-                             g_gpio_irq = NULL;
+                            mpu9250_interface_debug_print("mpu9250: dmp get pedometer step count failed.\n");
+                            (void)mpu9250_dmp_deinit();
+                            g_gpio_irq = NULL;
                             (void)gpio_interrupt_deinit();
+                            (void)mutex_unlock();
                             
                             return 1;
                         }
                         
-                        /* output */
-                        mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
-                        mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
-                        mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);
-                        mpu9250_interface_debug_print("mpu9250: gyro x[0] is %0.2fdps.\n", gs_gyro_dps[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: gyro y[0] is %0.2fdps.\n", gs_gyro_dps[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: gyro z[0] is %0.2fdps.\n", gs_gyro_dps[0][2]);
-                        mpu9250_interface_debug_print("mpu9250: mag x[0] is %0.2fuT.\n", gs_mag_ut[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: mag y[0] is %0.2fuT.\n", gs_mag_ut[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: mag z[0] is %0.2fuT.\n", gs_mag_ut[0][2]);
-                        
-                        /* delay 100 ms */
-                        mpu9250_interface_delay_ms(100);
+                        /* check the cnt */
+                        if (cnt != cnt_check)
+                        {
+                            mpu9250_interface_debug_print("mpu9250: pedometer step count is %d.\n", cnt);
+                            cnt_check = cnt;
+                            times--;
+                        }
                     }
-                    
-                    (void)mpu9250_fifo_deinit();
-                     g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* dmp function */
-            else if (strcmp("dmp", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
                 }
                 
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
+                /* mutex unlock */
+                (void)mutex_unlock();
             }
-            /* pedometer function */
-            else if (strcmp("pedometer", argv[2]) == 0)
-            {
-                /* check spi */
-                if (strcmp("-spi", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                
-                /* spi interface don't support dmp */
-                mpu9250_interface_debug_print("mpu9250: spi interface don't support dmp.\n");
-                
-                return 0;
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
-        }
-        /* param is invalid */
-        else
-        {
-            return 5;
+            
+            /* dmp deinit */
+            (void)mpu9250_dmp_deinit();
+            
+            /* gpio deinit */
+            g_gpio_irq = NULL;
+            (void)gpio_interrupt_deinit();
+            
+            return 0;
         }
     }
-    else if (argc == 6)
+    else if (strcmp("h", type) == 0)
     {
-        /* run test */
-        if (strcmp("-t", argv[1]) == 0)
-        {
-             /* read test */
-            if (strcmp("read", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (mpu9250_read_test(MPU9250_INTERFACE_IIC, addr, atoi(argv[3])) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            /* fifo test */
-            else if (strcmp("fifo", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_fifo_test_irq_handler;
-                if (mpu9250_fifo_test(MPU9250_INTERFACE_IIC, addr, atoi(argv[3])) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* dmp test */
-            else if (strcmp("dmp", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_dmp_read_test_irq_handler;
-                if (mpu9250_dmp_read_test(MPU9250_INTERFACE_IIC, addr, atoi(argv[3])) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* dmp test */
-            else if (strcmp("pedometer", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_dmp_pedometer_test_irq_handler;
-                if (mpu9250_dmp_pedometer_test(MPU9250_INTERFACE_IIC, addr, atoi(argv[3])) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
-        }
-        /* run function */
-        else if (strcmp("-c", argv[1]) == 0)
-        {
-            /* read function */
-            if (strcmp("read", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                uint32_t times;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (mpu9250_basic_init(MPU9250_INTERFACE_IIC, addr) != 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    uint32_t i;
-                    float g[3];
-                    float dps[3];
-                    float ut[3];
-                    float degrees;
-                    
-                    for (i = 0; i < times; i++)
-                    {
-                        /* read */
-                        if (mpu9250_basic_read(g, dps, ut) != 0)
-                        {
-                            (void)mpu9250_basic_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        if (mpu9250_basic_read_temperature(&degrees) != 0)
-                        {
-                            (void)mpu9250_basic_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        /* output */
-                        mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
-                        mpu9250_interface_debug_print("mpu9250: acc x is %0.2fg.\n", g[0]);
-                        mpu9250_interface_debug_print("mpu9250: acc y is %0.2fg.\n", g[1]);
-                        mpu9250_interface_debug_print("mpu9250: acc z is %0.2fg.\n", g[2]);
-                        mpu9250_interface_debug_print("mpu9250: gyro x is %0.2fdps.\n", dps[0]);
-                        mpu9250_interface_debug_print("mpu9250: gyro y is %0.2fdps.\n", dps[1]);
-                        mpu9250_interface_debug_print("mpu9250: gyro z is %0.2fdps.\n", dps[2]);
-                        mpu9250_interface_debug_print("mpu9250: mag x is %0.2fuT.\n", ut[0]);
-                        mpu9250_interface_debug_print("mpu9250: mag y is %0.2fuT.\n", ut[1]);
-                        mpu9250_interface_debug_print("mpu9250: mag z is %0.2fuT.\n", ut[2]);
-                        mpu9250_interface_debug_print("mpu9250: temperature %0.2fC.\n", degrees);
-                        
-                        /* delay 1000 ms */
-                        mpu9250_interface_delay_ms(1000);
-                    }
-                    
-                    (void)mpu9250_basic_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* fifo function */
-            else if (strcmp("fifo", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                uint32_t times;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_fifo_irq_handler;
-                if (mpu9250_fifo_init(MPU9250_INTERFACE_IIC, addr) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    uint32_t i;
-                    uint16_t len;
-                    
-                    /* delay 100 ms */
-                    mpu9250_interface_delay_ms(100);
-                    for (i = 0; i < times; i++)
-                    {
-                        len = 128;
-                        
-                        /* read */
-                        if (mpu9250_fifo_read(gs_accel_raw, gs_accel_g,
-                                              gs_gyro_raw, gs_gyro_dps, gs_mag_raw, gs_mag_ut, &len) != 0)
-                        {
-                            (void)mpu9250_fifo_deinit();
-                             g_gpio_irq = NULL;
-                            (void)gpio_interrupt_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        /* output */
-                        mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
-                        mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
-                        mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);
-                        mpu9250_interface_debug_print("mpu9250: gyro x[0] is %0.2fdps.\n", gs_gyro_dps[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: gyro y[0] is %0.2fdps.\n", gs_gyro_dps[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: gyro z[0] is %0.2fdps.\n", gs_gyro_dps[0][2]);
-                        mpu9250_interface_debug_print("mpu9250: mag x[0] is %0.2fuT.\n", gs_mag_ut[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: mag y[0] is %0.2fuT.\n", gs_mag_ut[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: mag z[0] is %0.2fuT.\n", gs_mag_ut[0][2]);
-                        
-                        /* delay 100 ms */
-                        mpu9250_interface_delay_ms(100);
-                    }
-                    
-                    (void)mpu9250_fifo_deinit();
-                     g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* dmp function */
-            else if (strcmp("dmp", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                uint32_t times;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_dmp_irq_handler;
-                if (mpu9250_dmp_init(MPU9250_INTERFACE_IIC, addr, mpu9250_interface_receive_callback, NULL, NULL) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    uint32_t i;
-                    uint16_t len;
-                    
-                    /* delay 500 ms */
-                    mpu9250_interface_delay_ms(500);
-                    for (i = 0; i < times; i++)
-                    {
-                        len = 128;
-                        
-                        /* read */
-                        if (mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
-                                                 gs_gyro_raw, gs_gyro_dps, 
-                                                 gs_quat,
-                                                 gs_pitch, gs_roll, gs_yaw,
-                                                 &len) != 0)
-                        {
-                            (void)mpu9250_dmp_deinit();
-                             g_gpio_irq = NULL;
-                            (void)gpio_interrupt_deinit();
-                            
-                            return 1;
-                        }
-                        
-                        /* output */
-                        mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
-                        mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
-                        mpu9250_interface_debug_print("mpu9250: pitch[0] is %0.2fdps.\n", gs_pitch[0]);
-                        mpu9250_interface_debug_print("mpu9250: roll[0] is %0.2fdps.\n", gs_roll[0]);
-                        mpu9250_interface_debug_print("mpu9250: yaw[0] is %0.2fdps.\n", gs_yaw[0]);
-                        mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);
-                        mpu9250_interface_debug_print("mpu9250: gyro x[0] is %0.2fdps.\n", gs_gyro_dps[0][0]);
-                        mpu9250_interface_debug_print("mpu9250: gyro y[0] is %0.2fdps.\n", gs_gyro_dps[0][1]);
-                        mpu9250_interface_debug_print("mpu9250: gyro z[0] is %0.2fdps.\n", gs_gyro_dps[0][2]);
-                        
-                        /* delay 500 ms */
-                        mpu9250_interface_delay_ms(500);
-                    }
-                    
-                    (void)mpu9250_dmp_deinit();
-                     g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* pedometer function */
-            else if (strcmp("pedometer", argv[2]) == 0)
-            {
-                mpu9250_address_t addr;
-                uint32_t times;
-                
-                /* check iic address */
-                if (strcmp("-iic", argv[4]) != 0)
-                {
-                    return 5;
-                }
-                if (strcmp("0", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_LOW;
-                }
-                else if (strcmp("1", argv[5]) == 0)
-                {
-                    addr = MPU9250_ADDRESS_AD0_HIGH;
-                }
-                else
-                {
-                    return 5;
-                }
-                
-                times = atoi(argv[3]);
-                if (gpio_interrupt_init() != 0)
-                {
-                    return 1;
-                }
-                g_gpio_irq = mpu9250_dmp_irq_handler;
-                if (mpu9250_dmp_init(MPU9250_INTERFACE_IIC, addr, mpu9250_interface_receive_callback, NULL, NULL) != 0)
-                {
-                    g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 1;
-                }
-                else
-                {
-                    uint8_t res;
-                    uint32_t i;
-                    uint32_t cnt = 0;
-                    uint32_t cnt_check = 0;
-                    
-                    i = 0;
-                    while (times != 0)
-                    {
-                        uint16_t l;
-                        
-                        /* delay 200 ms */
-                        mpu9250_interface_delay_ms(200);
-                        
-                        /* read the data */
-                        l = 128;
-                        res = mpu9250_dmp_read_all(gs_accel_raw, gs_accel_g,
-                                                   gs_gyro_raw, gs_gyro_dps, 
-                                                   gs_quat,
-                                                   gs_pitch, gs_roll, gs_yaw,
-                                                   &l);
-                        if (res == 0)
-                        {
-                            i++;
-                            if (i > 5)
-                            {
-                                i = 0;
-                                
-                                /* get the pedometer step count */
-                                res = mpu9250_dmp_get_pedometer_counter(&cnt);
-                                if (res != 0)
-                                {
-                                    mpu9250_interface_debug_print("mpu9250: dmp get pedometer step count failed.\n");
-                                    (void)mpu9250_dmp_deinit();
-                                     g_gpio_irq = NULL;
-                                    (void)gpio_interrupt_deinit();
-                                   
-                                    return 1;
-                                }
-                                
-                                /* check the cnt */
-                                if (cnt != cnt_check)
-                                {
-                                    mpu9250_interface_debug_print("mpu9250: pedometer step count is %d.\n", cnt);
-                                    cnt_check = cnt;
-                                    times--;
-                                }
-                            }
-                        }
-                    }
-                    
-                    (void)mpu9250_dmp_deinit();
-                     g_gpio_irq = NULL;
-                    (void)gpio_interrupt_deinit();
-                    
-                    return 0;
-                }
-            }
-            /* param is invalid */
-            else
-            {
-                return 5;
-            }
-        }
-        /* param is invalid */
-        else
-        {
-            return 5;
-        }
-    } 
-    /* param is invalid */
+        help:
+        mpu9250_interface_debug_print("Usage:\n");
+        mpu9250_interface_debug_print("  mpu9250 (-i | --information)\n");
+        mpu9250_interface_debug_print("  mpu9250 (-h | --help)\n");
+        mpu9250_interface_debug_print("  mpu9250 (-p | --port)\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t reg | --test=reg) [--addr=<0 | 1>] [--interface=<iic | spi>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t read | --test=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t fifo | --test=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t dmp | --test=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t motion | --test=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-t pedometer | --test=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-e read | --example=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-e fifo | --example=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-e dmp | --example=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-e motion | --example=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]\n");
+        mpu9250_interface_debug_print("  mpu9250 (-e pedometer | --example=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]\n");
+        mpu9250_interface_debug_print("\n");
+        mpu9250_interface_debug_print("Options:\n");
+        mpu9250_interface_debug_print("      --addr=<0 | 1>      Set the addr pin.([default: 0])\n");
+        mpu9250_interface_debug_print("  -e <read | fifo | dmp | motion | pedometer>, --example=<read | fifo | dmp | motion | pedometer>\n");
+        mpu9250_interface_debug_print("                          Run the driver example.\n");
+        mpu9250_interface_debug_print("  -h, --help              Show the help.\n");
+        mpu9250_interface_debug_print("  -i, --information       Show the chip information.\n");
+        mpu9250_interface_debug_print("      --interface=<iic | spi>\n");
+        mpu9250_interface_debug_print("                          Set the chip interface.([default: iic])\n");
+        mpu9250_interface_debug_print("  -p, --port              Display the pin connections of the current board.\n");
+        mpu9250_interface_debug_print("  -t <reg | read | fifo | dmp | motion | pedometer>, --test=<reg | read | fifo | dmp | motion | pedometer>\n");
+        mpu9250_interface_debug_print("                          Run the driver test.\n");
+        mpu9250_interface_debug_print("      --times=<num>       Set the running times.([default: 3])\n");
+        
+        return 0;
+    }
+    else if (strcmp("i", type) == 0)
+    {
+        mpu9250_info_t info;
+        
+        /* print mpu9250 info */
+        mpu9250_info(&info);
+        mpu9250_interface_debug_print("mpu9250: chip is %s.\n", info.chip_name);
+        mpu9250_interface_debug_print("mpu9250: manufacturer is %s.\n", info.manufacturer_name);
+        mpu9250_interface_debug_print("mpu9250: interface is %s.\n", info.interface);
+        mpu9250_interface_debug_print("mpu9250: driver version is %d.%d.\n", info.driver_version / 1000, (info.driver_version % 1000) / 100);
+        mpu9250_interface_debug_print("mpu9250: min supply voltage is %0.1fV.\n", info.supply_voltage_min_v);
+        mpu9250_interface_debug_print("mpu9250: max supply voltage is %0.1fV.\n", info.supply_voltage_max_v);
+        mpu9250_interface_debug_print("mpu9250: max current is %0.2fmA.\n", info.max_current_ma);
+        mpu9250_interface_debug_print("mpu9250: max temperature is %0.1fC.\n", info.temperature_max);
+        mpu9250_interface_debug_print("mpu9250: min temperature is %0.1fC.\n", info.temperature_min);
+        
+        return 0;
+    }
+    else if (strcmp("p", type) == 0)
+    {
+        /* print pin connection */
+        mpu9250_interface_debug_print("mpu9250: SPI interface SCK connected to GPIOA PIN5.\n");
+        mpu9250_interface_debug_print("mpu9250: SPI interface MISO connected to GPIOA PIN6.\n");
+        mpu9250_interface_debug_print("mpu9250: SPI interface MOSI connected to GPIOA PIN7.\n");
+        mpu9250_interface_debug_print("mpu9250: SPI interface CS connected to GPIOA PIN4.\n");
+        mpu9250_interface_debug_print("mpu9250: SCL connected to GPIOB PIN8.\n");
+        mpu9250_interface_debug_print("mpu9250: SDA connected to GPIOB PIN9.\n");
+        mpu9250_interface_debug_print("mpu9250: INT connected to GPIOB PIN0.\n");
+        
+        return 0;
+    }
     else
     {
         return 5;
@@ -1370,19 +1079,19 @@ int main(void)
     /* delay init */
     delay_init();
     
-    /* uart1 init */
-    uart1_init(115200);
+    /* uart init */
+    uart_init(115200);
     
     /* shell init && register mpu9250 fuction */
     shell_init();
     shell_register("mpu9250", mpu9250);
-    uart1_print("mpu9250: welcome to libdriver mpu9250.\n");
+    uart_print("mpu9250: welcome to libdriver mpu9250.\n");
     
     while (1)
     {
         /* read uart */
-        g_len = uart1_read(g_buf, 256);
-        if (g_len)
+        g_len = uart_read(g_buf, 256);
+        if (g_len != 0)
         {
             /* run shell */
             res = shell_parse((char *)g_buf, g_len);
@@ -1392,29 +1101,29 @@ int main(void)
             }
             else if (res == 1)
             {
-                uart1_print("mpu9250: run failed.\n");
+                uart_print("mpu9250: run failed.\n");
             }
             else if (res == 2)
             {
-                uart1_print("mpu9250: unknow command.\n");
+                uart_print("mpu9250: unknow command.\n");
             }
             else if (res == 3)
             {
-                uart1_print("mpu9250: length is too long.\n");
+                uart_print("mpu9250: length is too long.\n");
             }
             else if (res == 4)
             {
-                uart1_print("mpu9250: pretreat failed.\n");
+                uart_print("mpu9250: pretreat failed.\n");
             }
             else if (res == 5)
             {
-                uart1_print("mpu9250: param is invalid.\n");
+                uart_print("mpu9250: param is invalid.\n");
             }
             else
             {
-                uart1_print("mpu9250: unknow status code.\n");
+                uart_print("mpu9250: unknow status code.\n");
             }
-            uart1_flush();
+            uart_flush();
         }
         delay_ms(100);
     }

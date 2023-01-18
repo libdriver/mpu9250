@@ -1,14 +1,14 @@
-### 1. Chip
+### 1. Board
 
-#### 1.1 Chip Info
+#### 1.1 Board Info
 
-chip name : Raspberry Pi 4B.
+Board Name: Raspberry Pi 4B.
 
-iic pin: SCL/SDA GPIO3/GPIO2.
+IIC Pin: SCL/SDA GPIO3/GPIO2.
 
-spi pin: SCLK/MOSI/MISO/CS GPIO11/GPIO10/GPIO9/GPIO8.
+SPI Pin: SCLK/MOSI/MISO/CS GPIO11/GPIO10/GPIO9/GPIO8.
 
-gpio pin: INT GPIO17.
+GPIO Pin: INT GPIO17.
 
 ### 2. Install
 
@@ -79,39 +79,89 @@ find_package(mpu9250 REQUIRED)
 
 #### 3.1 Command Instruction
 
-​           mpu9250 is a basic command which can test all mpu9250 driver function:
+1. Show mpu9250 chip and driver information.
 
-​           -i         show mpu9250 chip and driver information.
+   ```shell
+   mpu9250 (-i | --information)
+   ```
 
-​           -h        show mpu9250 help.
+2. Show mpu9250 help.
 
-​           -p        show mpu9250 pin connections of the current board.
+   ```shell
+   mpu9250 (-h | --help)
+   ```
 
-​           -t  (reg (-iic (0 | 1) | -spi) | read <times> (-iic (0 | 1) | -spi) | fifo <times> (-iic (0 | 1) | -spi) | dmp <times> (-iic (0 | 1) | -spi) | motion (-iic (0 | 1) | -spi) | pedometer <times> (-iic (0 | 1) | -spi))
+3. Show mpu9250 pin connections of the current board.
 
-​           -t reg (-iic (0 | 1) | -spi)        run mpu9250 register test. 
+   ```shell
+   mpu9250 (-p | --port)
+   ```
 
-​           -t read <times> (-iic (0 | 1) | -spi)        run mpu9250 read test. times means the test times.
+4. Run mpu9250 register test.
 
-​           -t fifo <times> (-iic (0 | 1) | -spi)        run mpu9250 fifo test. times means the test times.
+   ```shell
+   mpu9250 (-t reg | --test=reg) [--addr=<0 | 1>] [--interface=<iic | spi>]
+   ```
 
-​           -t dmp <times> (-iic (0 | 1) | -spi)        run mpu9250 dmp test. times means the test times.
+5. Run mpu9250 read test, num means the test times.
 
-​           -t motion (-iic (0 | 1) | -spi)        run mpu9250 motion test. 
+   ```shell
+   mpu9250 (-t read | --test=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+   ```
 
-​           -t pedometer <times> (-iic (0 | 1) | -spi)        run mpu9250 pedometer test. times means the test times.
+6. Run mpu9250 fifo test, num means the test times.
 
-​           -c  (read <times> (-iic (0 | 1) | -spi) | fifo <times> (-iic (0 | 1) | -spi) | dmp <times> (-iic (0 | 1) | -spi) | motion (-iic (0 | 1) | -spi) | pedometer <times> (-iic (0 | 1) | -spi))
+   ```shell
+   mpu9250 (-t fifo | --test=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+   ```
 
-​           -c read <times> (-iic (0 | 1) | -spi)        run mpu9250 read function. times means the read times.
+7. Run mpu9250 dmp test, num means the test times.
 
-​           -c fifo <times> (-iic (0 | 1) | -spi)        run mpu9250 fifo function. times means the read times.
+   ```shell
+   mpu9250 (-t dmp | --test=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+   ```
 
-​           -c dmp <times> (-iic (0 | 1) | -spi)        run mpu9250 dmp function. times means the read times.
+8. Run mpu9250 motion test.
 
-​           -c motion (-iic (0 | 1) | -spi)        run mpu9250 motion function. 
+   ```shell
+   mpu9250 (-t motion | --test=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]
+   ```
 
-​           -c pedometer <times> (-iic (0 | 1) | -spi)        run mpu9250 pedometer function. times means the read times.
+9. Run mpu9250 pedometer test, num means the test times.
+
+   ```shell
+   mpu9250 (-t pedometer | --test=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+   ```
+
+10. Run mpu9250 read function, num means the read times.
+
+    ```shell
+    mpu9250 (-e read | --example=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+    ```
+
+11. Run mpu9250 fifo function, num means the read times.
+
+    ```shell
+    mpu9250 (-e fifo | --example=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+    ```
+
+12. Run mpu9250 dmp function, num means the read times.
+
+    ```shell
+    mpu9250 (-e dmp | --example=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+    ```
+
+13. Run mpu9250 motion function.
+
+    ```shell
+    mpu9250 (-e motion | --example=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]
+    ```
+
+14. Run mpu9250 pedometer function, num means the read times.
+
+    ```shell
+    mpu9250 (-e pedometer | --example=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+    ```
 
 #### 3.2 Command Example
 
@@ -142,7 +192,7 @@ mpu9250: INT connected to GPIO17.
 ```
 
 ```shell
-./mpu9250 -t reg -iic 0
+./mpu9250 -t reg --addr=0 --interface=iic
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -246,7 +296,7 @@ mpu9250: check signal path reset ok.
 mpu9250: gyro signal path reset.
 mpu9250: check signal path reset ok.
 mpu9250: mpu9250_set_sample_rate_divider/mpu9250_get_sample_rate_divider test.
-mpu9250: set sample rate divider 0x8000513.
+mpu9250: set sample rate divider 0x10A9C.
 mpu9250: check sample rate divider ok.
 mpu9250: mpu9250_set_extern_sync/mpu9250_get_extern_sync test.
 mpu9250: set extern sync input disabled.
@@ -402,31 +452,31 @@ mpu9250: check data ready interrupt ok.
 mpu9250: disable data ready interrupt.
 mpu9250: check data ready interrupt ok.
 mpu9250: mpu9250_get_interrupt_status test.
-mpu9250: get interrupt status 0x01.
+mpu9250: get interrupt status 0x00.
 mpu9250: mpu9250_set_gyroscope_x_test/mpu9250_get_gyroscope_x_test test.
-mpu9250: set gyroscope x test 0x04.
+mpu9250: set gyroscope x test 0x0D.
 mpu9250: check gyroscope x test ok.
 mpu9250: mpu9250_set_gyroscope_y_test/mpu9250_get_gyroscope_y_test test.
-mpu9250: set gyroscope y test 0x0C.
+mpu9250: set gyroscope y test 0x1A.
 mpu9250: check gyroscope y test ok.
 mpu9250: mpu9250_set_gyroscope_z_test/mpu9250_get_gyroscope_z_test test.
 mpu9250: set gyroscope z test 0x0B.
 mpu9250: check gyroscope z test ok.
 mpu9250: mpu9250_set_accelerometer_x_test/mpu9250_get_accelerometer_x_test test.
-mpu9250: set accelerometer x test 0x1A.
+mpu9250: set accelerometer x test 0x12.
 mpu9250: check accelerometer x test ok.
 mpu9250: mpu9250_set_accelerometer_y_test/mpu9250_get_accelerometer_y_test test.
-mpu9250: set accelerometer y test 0x01.
+mpu9250: set accelerometer y test 0x1B.
 mpu9250: check accelerometer y test ok.
 mpu9250: mpu9250_set_accelerometer_z_test/mpu9250_get_accelerometer_z_test test.
-mpu9250: set accelerometer z test 0x05.
+mpu9250: set accelerometer z test 0x03.
 mpu9250: check accelerometer z test ok.
 mpu9250: mpu9250_set_motion_threshold/mpu9250_get_motion_threshold test.
-mpu9250: set motion threshold 0xA1.
+mpu9250: set motion threshold 0x46.
 mpu9250: check motion threshold ok.
 mpu9250: mpu9250_motion_threshold_convert_to_register/mpu9250_motion_threshold_convert_to_data test.
-mpu9250: motion threshold convert to register 182.60.
-mpu9250: check motion threshold 180.00.
+mpu9250: motion threshold convert to register 86.00.
+mpu9250: check motion threshold 84.00.
 mpu9250: mpu9250_set_iic_clock/mpu9250_get_iic_clock test.
 mpu9250: set iic clock 348 kHz.
 mpu9250: check iic clock ok.
@@ -514,35 +564,35 @@ mpu9250: check iic mode ok.
 mpu9250: set slave4 iic read mode.
 mpu9250: check iic mode ok.
 mpu9250: mpu9250_set_iic_address/mpu9250_get_iic_address test.
-mpu9250: set slave0 iic address 0x04.
+mpu9250: set slave0 iic address 0x2D.
 mpu9250: check iic address ok.
-mpu9250: set slave1 iic address 0x36.
+mpu9250: set slave1 iic address 0x76.
 mpu9250: check iic address ok.
-mpu9250: set slave2 iic address 0x31.
+mpu9250: set slave2 iic address 0x7E.
 mpu9250: check iic address ok.
-mpu9250: set slave3 iic address 0x05.
+mpu9250: set slave3 iic address 0x4A.
 mpu9250: check iic address ok.
-mpu9250: set slave4 iic address 0x7A.
+mpu9250: set slave4 iic address 0x12.
 mpu9250: check iic address ok.
 mpu9250: mpu9250_set_iic_register/mpu9250_get_iic_register test.
-mpu9250: set slave0 iic register 0xB5.
+mpu9250: set slave0 iic register 0xE7.
 mpu9250: check iic register ok.
-mpu9250: set slave1 iic register 0x5A.
+mpu9250: set slave1 iic register 0x8D.
 mpu9250: check iic register ok.
-mpu9250: set slave2 iic register 0x39.
+mpu9250: set slave2 iic register 0x76.
 mpu9250: check iic register ok.
-mpu9250: set slave3 iic register 0x68.
+mpu9250: set slave3 iic register 0x5A.
 mpu9250: check iic register ok.
-mpu9250: set slave4 iic register 0xE8.
+mpu9250: set slave4 iic register 0x2E.
 mpu9250: check iic register ok.
 mpu9250: mpu9250_set_iic_data_out/mpu9250_get_iic_data_out test.
-mpu9250: set slave0 iic data out 0xC9.
+mpu9250: set slave0 iic data out 0x63.
 mpu9250: check iic data out ok.
-mpu9250: set slave1 iic data out 0xAA.
+mpu9250: set slave1 iic data out 0x33.
 mpu9250: check iic data out ok.
-mpu9250: set slave2 iic data out 0x5C.
+mpu9250: set slave2 iic data out 0x9F.
 mpu9250: check iic data out ok.
-mpu9250: set slave3 iic data out 0x9F.
+mpu9250: set slave3 iic data out 0xC9.
 mpu9250: check iic data out ok.
 mpu9250: mpu9250_set_iic_enable/mpu9250_get_iic_enable test.
 mpu9250: slave0 iic enable.
@@ -613,13 +663,13 @@ mpu9250: check iic group order ok.
 mpu9250: set slave3 group order odd.
 mpu9250: check iic group order ok.
 mpu9250: mpu9250_set_iic_transferred_len/mpu9250_get_iic_transferred_len test.
-mpu9250: set slave0 iic transferred len 0.
+mpu9250: set slave0 iic transferred len 10.
 mpu9250: check iic transferred len ok.
-mpu9250: set slave1 iic transferred len 1.
+mpu9250: set slave1 iic transferred len 6.
 mpu9250: check iic transferred len ok.
-mpu9250: set slave2 iic transferred len 8.
+mpu9250: set slave2 iic transferred len 2.
 mpu9250: check iic transferred len ok.
-mpu9250: set slave3 iic transferred len 10.
+mpu9250: set slave3 iic transferred len 13.
 mpu9250: check iic transferred len ok.
 mpu9250: mpu9250_get_iic_status test.
 mpu9250: iic status is 0x00.
@@ -664,13 +714,13 @@ mpu9250: check iic4 transaction mode ok.
 mpu9250: set iic4 transaction mode reg.
 mpu9250: check iic4 transaction mode ok.
 mpu9250: mpu9250_set_iic_delay/mpu9250_get_iic_delay test.
-mpu9250: set iic delay 0x00.
+mpu9250: set iic delay 0x16.
 mpu9250: check iic delay ok.
 mpu9250: mpu9250_set_iic4_data_out/mpu9250_get_iic4_data_out test.
-mpu9250: set iic4 data out 0xBF.
+mpu9250: set iic4 data out 0x31.
 mpu9250: check iic4 data out ok.
 mpu9250: mpu9250_set_iic4_data_in/mpu9250_get_iic4_data_in test.
-mpu9250: set iic4 data in 0xDD.
+mpu9250: set iic4 data in 0x58.
 mpu9250: check iic4 data in ok.
 mpu9250: mpu9250_set_gyro_standby/mpu9250_get_gyro_standby test.
 mpu9250: enable gyro standby.
@@ -683,10 +733,10 @@ mpu9250: check fifo mode ok.
 mpu9250: set fifo normal mode.
 mpu9250: check fifo mode ok.
 mpu9250: mpu9250_set_gyroscope_choice/mpu9250_get_gyroscope_choice test.
-mpu9250: set gyroscope choice 0x00.
+mpu9250: set gyroscope choice 0x03.
 mpu9250: check gyroscope choice ok.
 mpu9250: mpu9250_set_accelerometer_choice/mpu9250_get_accelerometer_choice test.
-mpu9250: set accelerometer choice 0x01.
+mpu9250: set accelerometer choice 0x00.
 mpu9250: check accelerometer choice ok.
 mpu9250: mpu9250_set_accelerometer_low_pass_filter/mpu9250_get_accelerometer_low_pass_filter test.
 mpu9250: set accelerometer low pass filter 0.
@@ -741,29 +791,29 @@ mpu9250: check accel compare with previous sample ok.
 mpu9250: disable accel compare with previous sample.
 mpu9250: check accel compare with previous sample ok.
 mpu9250: mpu9250_set_accelerometer_x_offset/mpu9250_get_accelerometer_x_offset test.
-mpu9250: set accelerometer x offset 11377.
+mpu9250: set accelerometer x offset 24869.
 mpu9250: check accelerometer x offset ok.
 mpu9250: mpu9250_set_accelerometer_y_offset/mpu9250_get_accelerometer_y_offset test.
-mpu9250: set accelerometer y offset -3771.
+mpu9250: set accelerometer y offset -2397.
 mpu9250: check accelerometer y offset ok.
 mpu9250: mpu9250_set_accelerometer_z_offset/mpu9250_get_accelerometer_z_offset test.
-mpu9250: set accelerometer z offset 5667.
+mpu9250: set accelerometer z offset 12549.
 mpu9250: check accelerometer z offset ok.
 mpu9250: mpu9250_accelerometer_offset_convert_to_register/mpu9250_accelerometer_offset_convert_to_data test.
-mpu9250: accelerometer offset convert to register 94.90.
-mpu9250: check accelerometer offset 94.08.
+mpu9250: accelerometer offset convert to register 91.90.
+mpu9250: check accelerometer offset 91.14.
 mpu9250: mpu9250_set_gyro_x_offset/mpu9250_get_gyro_x_offset test.
-mpu9250: set gyro x offset 6044.
+mpu9250: set gyro x offset 10328.
 mpu9250: check gyro x offset ok.
 mpu9250: mpu9250_set_gyro_y_offset/mpu9250_get_gyro_y_offset test.
-mpu9250: set gyro y offset -26997.
+mpu9250: set gyro y offset -23273.
 mpu9250: check gyro y offset ok.
 mpu9250: mpu9250_set_gyro_z_offset/mpu9250_get_gyro_z_offset test.
-mpu9250: set gyro z offset 28541.
+mpu9250: set gyro z offset 1118.
 mpu9250: check gyro z offset ok.
 mpu9250: mpu9250_gyro_offset_convert_to_register/mpu9250_gyro_offset_convert_to_data test.
-mpu9250: gyro offset convert to register 47.80.
-mpu9250: check gyro offset 47.79.
+mpu9250: gyro offset convert to register 32.40.
+mpu9250: check gyro offset 32.39.
 mpu9250: magnetometer test.
 mpu9250: mpu9250_mag_get_info test.
 mpu9250: mag information is 0x9A.
@@ -803,7 +853,7 @@ mpu9250: finish register test.
 ```
 
 ```shell
-./mpu9250 -t read 3 -iic 0 
+./mpu9250 -t read --addr=0 --interface=iic --times=3
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -816,125 +866,125 @@ mpu9250: max temperature is 85.0C.
 mpu9250: min temperature is -40.0C.
 mpu9250: start read test.
 mpu9250: set accelerometer range 2g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.95g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
 mpu9250: set accelerometer range 4g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.95g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
 mpu9250: set accelerometer range 8g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
 mpu9250: set accelerometer range 16g.
-mpu9250: acc x is -0.09g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.05g.
-mpu9250: acc z is 0.95g.
-mpu9250: acc x is -0.09g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.95g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.32g.
+mpu9250: acc x is -0.21g.
+mpu9250: acc y is 0.91g.
+mpu9250: acc z is 0.31g.
 mpu9250: set gyroscope range 250dps.
-mpu9250: gyro x is -2.65dps.
-mpu9250: gyro y is -6.89dps.
-mpu9250: gyro z is -0.43dps.
-mpu9250: gyro x is -2.55dps.
-mpu9250: gyro y is -6.80dps.
-mpu9250: gyro z is -0.40dps.
-mpu9250: gyro x is -2.63dps.
-mpu9250: gyro y is -6.90dps.
-mpu9250: gyro z is -0.39dps.
+mpu9250: gyro x is -2.45dps.
+mpu9250: gyro y is -6.63dps.
+mpu9250: gyro z is -0.25dps.
+mpu9250: gyro x is -1.83dps.
+mpu9250: gyro y is -6.53dps.
+mpu9250: gyro z is -0.76dps.
+mpu9250: gyro x is -2.33dps.
+mpu9250: gyro y is -6.57dps.
+mpu9250: gyro z is -0.22dps.
 mpu9250: set gyroscope range 500dps.
-mpu9250: gyro x is -2.58dps.
-mpu9250: gyro y is -6.84dps.
-mpu9250: gyro z is -0.40dps.
-mpu9250: gyro x is -2.66dps.
-mpu9250: gyro y is -6.89dps.
-mpu9250: gyro z is -0.38dps.
-mpu9250: gyro x is -2.66dps.
-mpu9250: gyro y is -6.85dps.
-mpu9250: gyro z is -0.40dps.
+mpu9250: gyro x is -2.67dps.
+mpu9250: gyro y is -6.60dps.
+mpu9250: gyro z is -0.27dps.
+mpu9250: gyro x is -2.52dps.
+mpu9250: gyro y is -6.53dps.
+mpu9250: gyro z is -0.02dps.
+mpu9250: gyro x is -2.29dps.
+mpu9250: gyro y is -6.60dps.
+mpu9250: gyro z is -0.21dps.
 mpu9250: set gyroscope range 1000dps.
-mpu9250: gyro x is -2.65dps.
-mpu9250: gyro y is -6.80dps.
-mpu9250: gyro z is -0.37dps.
-mpu9250: gyro x is -2.62dps.
-mpu9250: gyro y is -6.86dps.
-mpu9250: gyro z is -0.40dps.
 mpu9250: gyro x is -2.59dps.
-mpu9250: gyro y is -6.86dps.
-mpu9250: gyro z is -0.40dps.
+mpu9250: gyro y is -6.59dps.
+mpu9250: gyro z is -0.30dps.
+mpu9250: gyro x is -2.32dps.
+mpu9250: gyro y is -6.59dps.
+mpu9250: gyro z is -0.30dps.
+mpu9250: gyro x is -2.41dps.
+mpu9250: gyro y is -6.49dps.
+mpu9250: gyro z is -0.30dps.
 mpu9250: set gyroscope range 2000dps.
-mpu9250: gyro x is -2.68dps.
-mpu9250: gyro y is -6.89dps.
+mpu9250: gyro x is -2.50dps.
+mpu9250: gyro y is -6.65dps.
+mpu9250: gyro z is -0.30dps.
+mpu9250: gyro x is -2.50dps.
+mpu9250: gyro y is -6.59dps.
+mpu9250: gyro z is -0.24dps.
+mpu9250: gyro x is -2.38dps.
+mpu9250: gyro y is -6.59dps.
 mpu9250: gyro z is -0.37dps.
-mpu9250: gyro x is -2.62dps.
-mpu9250: gyro y is -6.89dps.
-mpu9250: gyro z is -0.37dps.
-mpu9250: gyro x is -2.62dps.
-mpu9250: gyro y is -6.95dps.
-mpu9250: gyro z is -0.43dps.
 mpu9250: read temperature.
-mpu9250: temperature 27.93C.
-mpu9250: temperature 27.94C.
-mpu9250: temperature 27.95C.
+mpu9250: temperature 32.20C.
+mpu9250: temperature 32.19C.
+mpu9250: temperature 32.21C.
 mpu9250: read magnetometer.
 mpu9250: set magnetometer 14 bits.
-mpu9250: mag x is 25.02uT.
-mpu9250: mag y is -20.87uT.
-mpu9250: mag z is 78.55uT.
-mpu9250: mag x is 26.45uT.
-mpu9250: mag y is -21.59uT.
-mpu9250: mag z is 79.24uT.
-mpu9250: mag x is 24.30uT.
-mpu9250: mag y is -22.31uT.
-mpu9250: mag z is 78.55uT.
+mpu9250: mag x is 0.00uT.
+mpu9250: mag y is 0.00uT.
+mpu9250: mag z is 0.00uT.
+mpu9250: mag x is -44.32uT.
+mpu9250: mag y is 23.03uT.
+mpu9250: mag z is 106.12uT.
+mpu9250: mag x is -45.04uT.
+mpu9250: mag y is 23.03uT.
+mpu9250: mag z is 107.49uT.
 mpu9250: set magnetometer 16 bits.
-mpu9250: mag x is 5.90uT.
-mpu9250: mag y is -5.94uT.
-mpu9250: mag z is 20.16uT.
-mpu9250: mag x is 24.84uT.
-mpu9250: mag y is -23.20uT.
-mpu9250: mag z is 79.76uT.
-mpu9250: mag x is 25.38uT.
-mpu9250: mag y is -20.87uT.
-mpu9250: mag z is 79.24uT.
+mpu9250: mag x is -10.72uT.
+mpu9250: mag y is 5.22uT.
+mpu9250: mag z is 26.70uT.
+mpu9250: mag x is -44.32uT.
+mpu9250: mag y is 23.03uT.
+mpu9250: mag z is 105.43uT.
+mpu9250: mag x is -44.32uT.
+mpu9250: mag y is 22.67uT.
+mpu9250: mag z is 106.46uT.
 mpu9250: mpu9250 mag read test.
-mpu9250: mag x is 25.91uT.
-mpu9250: mag y is -22.13uT.
-mpu9250: mag z is 81.14uT.
-mpu9250: mag x is 24.48uT.
-mpu9250: mag y is -22.13uT.
-mpu9250: mag z is 80.45uT.
-mpu9250: mag x is 24.13uT.
-mpu9250: mag y is -21.41uT.
-mpu9250: mag z is 80.45uT.
+mpu9250: mag x is -44.50uT.
+mpu9250: mag y is 21.41uT.
+mpu9250: mag z is 106.29uT.
+mpu9250: mag x is -44.32uT.
+mpu9250: mag y is 21.59uT.
+mpu9250: mag z is 105.43uT.
+mpu9250: mag x is -42.71uT.
+mpu9250: mag y is 22.49uT.
+mpu9250: mag z is 106.29uT.
 mpu9250: finish read test.
 ```
 
 ```shell
-./mpu9250 -t fifo 3 -iic 0
+./mpu9250 -t fifo --addr=0 --interface=iic --times=3
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -947,40 +997,40 @@ mpu9250: max temperature is 85.0C.
 mpu9250: min temperature is -40.0C.
 mpu9250: start fifo test.
 mpu9250: fifo 48.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.05g.
-mpu9250: acc z[0] is 0.96g.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.62g.
+mpu9250: acc z[0] is 0.68g.
+mpu9250: gyro x[0] is -2.07dps.
+mpu9250: gyro y[0] is -6.22dps.
+mpu9250: gyro z[0] is -0.55dps.
+mpu9250: mag x[0] is -11.62uT.
+mpu9250: mag y[0] is 18.17uT.
+mpu9250: mag z[0] is 79.07uT.
+mpu9250: fifo 28.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.61g.
+mpu9250: acc z[0] is 0.69g.
 mpu9250: gyro x[0] is -2.56dps.
-mpu9250: gyro y[0] is -7.13dps.
+mpu9250: gyro y[0] is -6.34dps.
 mpu9250: gyro z[0] is -0.30dps.
-mpu9250: mag x[0] is 24.66uT.
-mpu9250: mag y[0] is -23.38uT.
-mpu9250: mag z[0] is 80.62uT.
-mpu9250: fifo 27.
-mpu9250: acc x[0] is -0.08g.
-mpu9250: acc y[0] is 0.05g.
-mpu9250: acc z[0] is 0.96g.
-mpu9250: gyro x[0] is -2.62dps.
-mpu9250: gyro y[0] is -7.13dps.
-mpu9250: gyro z[0] is -0.30dps.
-mpu9250: mag x[0] is 24.48uT.
-mpu9250: mag y[0] is -22.49uT.
-mpu9250: mag z[0] is 80.10uT.
-mpu9250: fifo 27.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.05g.
-mpu9250: acc z[0] is 0.97g.
-mpu9250: gyro x[0] is -2.50dps.
-mpu9250: gyro y[0] is -7.13dps.
-mpu9250: gyro z[0] is -0.37dps.
-mpu9250: mag x[0] is 23.95uT.
-mpu9250: mag y[0] is -23.03uT.
-mpu9250: mag z[0] is 80.62uT.
+mpu9250: mag x[0] is -11.44uT.
+mpu9250: mag y[0] is 17.99uT.
+mpu9250: mag z[0] is 80.28uT.
+mpu9250: fifo 26.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.61g.
+mpu9250: acc z[0] is 0.69g.
+mpu9250: gyro x[0] is -2.80dps.
+mpu9250: gyro y[0] is -6.40dps.
+mpu9250: gyro z[0] is -0.24dps.
+mpu9250: mag x[0] is -12.15uT.
+mpu9250: mag y[0] is 16.91uT.
+mpu9250: mag z[0] is 78.90uT.
 mpu9250: finish fifo test.
 ```
 
 ```shell
-./mpu9250 -t dmp 3 -iic 0
+./mpu9250 -t dmp --addr=0 --interface=iic --times=3
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -998,7 +1048,7 @@ mpu9250: mpu9250_dmp_set_pedometer_walk_time/mpu9250_dmp_get_pedometer_walk_time
 mpu9250: dmp set pedometer walk time 200 ms.
 mpu9250: check pedometer walk time ok.
 mpu9250: mpu9250_dmp_set_pedometer_step_count/mpu9250_dmp_get_pedometer_step_count test.
-mpu9250: dmp set pedometer step count 768.
+mpu9250: dmp set pedometer step count 383.
 mpu9250: check pedometer step count ok.
 mpu9250: mpu9250_dmp_set_shake_reject_timeout/mpu9250_dmp_get_shake_reject_timeout test.
 mpu9250: dmp set shake reject timeout 10 ms.
@@ -1063,41 +1113,41 @@ mpu9250: enable feature orient.
 mpu9250: enable feature send raw accel.
 mpu9250: enable feature send cal gyro.
 mpu9250: enable feature gyro cal.
-mpu9250: fifo 9.
-mpu9250: pitch[0] is -0.18dps.
+mpu9250: fifo 8.
+mpu9250: pitch[0] is -0.03dps.
 mpu9250: roll[0] is 0.79dps.
 mpu9250: yaw[0] is -0.03dps.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.05g.
-mpu9250: acc z[0] is 0.96g.
-mpu9250: gyro x[0] is -0.06dps.
-mpu9250: gyro y[0] is -0.12dps.
-mpu9250: gyro z[0] is -0.12dps.
-mpu9250: fifo 17.
-mpu9250: pitch[0] is -0.17dps.
-mpu9250: roll[0] is 0.76dps.
-mpu9250: yaw[0] is -0.04dps.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.05g.
+mpu9250: acc x[0] is -0.08g.
+mpu9250: acc y[0] is 0.00g.
 mpu9250: acc z[0] is 0.96g.
 mpu9250: gyro x[0] is -0.12dps.
-mpu9250: gyro y[0] is -0.18dps.
-mpu9250: gyro z[0] is -0.06dps.
-mpu9250: fifo 20.
-mpu9250: pitch[0] is -0.17dps.
-mpu9250: roll[0] is 0.71dps.
-mpu9250: yaw[0] is -0.04dps.
+mpu9250: gyro y[0] is 0.37dps.
+mpu9250: gyro z[0] is 0.12dps.
+mpu9250: fifo 14.
+mpu9250: pitch[0] is -0.01dps.
+mpu9250: roll[0] is 0.77dps.
+mpu9250: yaw[0] is -0.02dps.
 mpu9250: acc x[0] is -0.08g.
-mpu9250: acc y[0] is 0.05g.
-mpu9250: acc z[0] is 0.97g.
-mpu9250: gyro x[0] is -0.06dps.
-mpu9250: gyro y[0] is -0.18dps.
-mpu9250: gyro z[0] is -0.06dps.
+mpu9250: acc y[0] is 0.00g.
+mpu9250: acc z[0] is 0.96g.
+mpu9250: gyro x[0] is -0.24dps.
+mpu9250: gyro y[0] is 0.43dps.
+mpu9250: gyro z[0] is 0.18dps.
+mpu9250: fifo 17.
+mpu9250: pitch[0] is 0.02dps.
+mpu9250: roll[0] is 0.73dps.
+mpu9250: yaw[0] is -0.00dps.
+mpu9250: acc x[0] is -0.08g.
+mpu9250: acc y[0] is 0.00g.
+mpu9250: acc z[0] is 0.96g.
+mpu9250: gyro x[0] is 0.00dps.
+mpu9250: gyro y[0] is 0.55dps.
+mpu9250: gyro z[0] is 0.24dps.
 mpu9250: finish dmp read test.
 ```
 
 ```shell
-./mpu9250 -t motion -iic 0
+./mpu9250 -t motion --addr=0 --interface=iic
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -1115,7 +1165,7 @@ mpu9250: mpu9250_dmp_set_pedometer_walk_time/mpu9250_dmp_get_pedometer_walk_time
 mpu9250: dmp set pedometer walk time 200 ms.
 mpu9250: check pedometer walk time ok.
 mpu9250: mpu9250_dmp_set_pedometer_step_count/mpu9250_dmp_get_pedometer_step_count test.
-mpu9250: dmp set pedometer step count 667.
+mpu9250: dmp set pedometer step count 383.
 mpu9250: check pedometer step count ok.
 mpu9250: mpu9250_dmp_set_shake_reject_timeout/mpu9250_dmp_get_shake_reject_timeout test.
 mpu9250: dmp set shake reject timeout 10 ms.
@@ -1181,13 +1231,13 @@ mpu9250: enable feature send raw accel.
 mpu9250: enable feature send cal gyro.
 mpu9250: enable feature gyro cal.
 mpu9250: irq motion.
-mpu9250: tap irq x up with 2.
-mpu9250: orient irq landscape.
+mpu9250: tap irq x up with 6.
+mpu9250: orient irq reverse landscape.
 mpu9250: finish dmp tap orient motion test.
 ```
 
 ```shell
-./mpu9250 -t pedometer 3 -iic 0
+./mpu9250 -t pedometer --addr=0 --interface=iic --times=3
 
 mpu9250: chip is TDK MPU9250.
 mpu9250: manufacturer is TDK.
@@ -1205,7 +1255,7 @@ mpu9250: mpu9250_dmp_set_pedometer_walk_time/mpu9250_dmp_get_pedometer_walk_time
 mpu9250: dmp set pedometer walk time 200 ms.
 mpu9250: check pedometer walk time ok.
 mpu9250: mpu9250_dmp_set_pedometer_step_count/mpu9250_dmp_get_pedometer_step_count test.
-mpu9250: dmp set pedometer step count 409.
+mpu9250: dmp set pedometer step count 383.
 mpu9250: check pedometer step count ok.
 mpu9250: dmp set gesture continuous mode.
 mpu9250: mpu9250_dmp_set_fifo_rate/mpu9250_dmp_get_fifo_rate test.
@@ -1213,139 +1263,139 @@ mpu9250: dmp set fifo rate 50Hz.
 mpu9250: check fifo rate ok.
 mpu9250: mpu9250_dmp_set_feature test.
 mpu9250: enable feature pedometer.
-mpu9250: pedometer step count is 416.
-mpu9250: pedometer step count is 417.
-mpu9250: pedometer step count is 418.
+mpu9250: pedometer step count is 390.
+mpu9250: pedometer step count is 391.
+mpu9250: pedometer step count is 392.
 mpu9250: finish dmp pedometer test.
 ```
 
 ```shell
-./mpu9250 -c read 3 -iic 0
+./mpu9250 -e read --addr=0 --interface=iic --times=3
 
 mpu9250: 1/3.
-mpu9250: acc x is -0.09g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.96g.
-mpu9250: gyro x is -2.20dps.
-mpu9250: gyro y is -6.28dps.
-mpu9250: gyro z is -0.24dps.
-mpu9250: mag x is 22.16uT.
-mpu9250: mag y is -25.90uT.
-mpu9250: mag z is 80.96uT.
-mpu9250: temperature 30.37C.
+mpu9250: acc x is -0.46g.
+mpu9250: acc y is 0.90g.
+mpu9250: acc z is -0.03g.
+mpu9250: gyro x is -2.01dps.
+mpu9250: gyro y is -5.67dps.
+mpu9250: gyro z is -0.37dps.
+mpu9250: mag x is 0.00uT.
+mpu9250: mag y is 0.00uT.
+mpu9250: mag z is 0.00uT.
+mpu9250: temperature 31.81C.
 mpu9250: 2/3.
-mpu9250: acc x is -0.08g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.97g.
-mpu9250: gyro x is -2.56dps.
-mpu9250: gyro y is -7.26dps.
-mpu9250: gyro z is -0.30dps.
-mpu9250: mag x is 21.27uT.
-mpu9250: mag y is -26.08uT.
-mpu9250: mag z is 81.14uT.
-mpu9250: temperature 31.75C.
-mpu9250: 3/3.
-mpu9250: acc x is -0.09g.
-mpu9250: acc y is 0.06g.
-mpu9250: acc z is 0.96g.
+mpu9250: acc x is -0.46g.
+mpu9250: acc y is 0.89g.
+mpu9250: acc z is -0.02g.
 mpu9250: gyro x is -2.50dps.
-mpu9250: gyro y is -7.20dps.
-mpu9250: gyro z is -0.30dps.
-mpu9250: mag x is 21.98uT.
-mpu9250: mag y is -25.36uT.
-mpu9250: mag z is 80.79uT.
-mpu9250: temperature 31.78C.
+mpu9250: gyro y is -6.40dps.
+mpu9250: gyro z is -0.43dps.
+mpu9250: mag x is -12.69uT.
+mpu9250: mag y is 1.98uT.
+mpu9250: mag z is 26.01uT.
+mpu9250: temperature 33.58C.
+mpu9250: 3/3.
+mpu9250: acc x is -0.46g.
+mpu9250: acc y is 0.89g.
+mpu9250: acc z is -0.02g.
+mpu9250: gyro x is -2.99dps.
+mpu9250: gyro y is -6.52dps.
+mpu9250: gyro z is -0.18dps.
+mpu9250: mag x is -13.40uT.
+mpu9250: mag y is 1.62uT.
+mpu9250: mag z is 26.01uT.
+mpu9250: temperature 33.78C.
 ```
 
 ```shell
-./mpu9250 -c fifo 3 -iic 0
+./mpu9250 -e fifo --addr=0 --interface=iic --times=3
 
 mpu9250: 1/3.
 mpu9250: fifo 17.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.97g.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.61g.
+mpu9250: acc z[0] is 0.68g.
 mpu9250: gyro x[0] is -2.56dps.
-mpu9250: gyro y[0] is -7.20dps.
-mpu9250: gyro z[0] is -0.37dps.
-mpu9250: mag x[0] is 22.34uT.
-mpu9250: mag y[0] is -24.64uT.
-mpu9250: mag z[0] is 82.17uT.
+mpu9250: gyro y[0] is -5.79dps.
+mpu9250: gyro z[0] is -0.98dps.
+mpu9250: mag x[0] is -11.44uT.
+mpu9250: mag y[0] is 14.39uT.
+mpu9250: mag z[0] is 74.07uT.
 mpu9250: 2/3.
-mpu9250: fifo 26.
-mpu9250: acc x[0] is -0.08g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.97g.
+mpu9250: fifo 14.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.61g.
+mpu9250: acc z[0] is 0.68g.
 mpu9250: gyro x[0] is -2.56dps.
-mpu9250: gyro y[0] is -7.07dps.
-mpu9250: gyro z[0] is -0.30dps.
-mpu9250: mag x[0] is 20.91uT.
-mpu9250: mag y[0] is -25.72uT.
-mpu9250: mag z[0] is 80.10uT.
+mpu9250: gyro y[0] is -6.16dps.
+mpu9250: gyro z[0] is -0.61dps.
+mpu9250: mag x[0] is -10.37uT.
+mpu9250: mag y[0] is 13.31uT.
+mpu9250: mag z[0] is 74.07uT.
 mpu9250: 3/3.
-mpu9250: fifo 26.
-mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.96g.
-mpu9250: gyro x[0] is -2.56dps.
-mpu9250: gyro y[0] is -7.07dps.
+mpu9250: fifo 13.
+mpu9250: acc x[0] is -0.29g.
+mpu9250: acc y[0] is 0.61g.
+mpu9250: acc z[0] is 0.68g.
+mpu9250: gyro x[0] is -2.38dps.
+mpu9250: gyro y[0] is -6.28dps.
 mpu9250: gyro z[0] is -0.24dps.
-mpu9250: mag x[0] is 21.98uT.
-mpu9250: mag y[0] is -25.00uT.
-mpu9250: mag z[0] is 81.83uT.
+mpu9250: mag x[0] is -11.44uT.
+mpu9250: mag y[0] is 12.95uT.
+mpu9250: mag z[0] is 74.42uT.
 ```
 
 ```shell
-./mpu9250 -c dmp 3 -iic 0
+./mpu9250 -e dmp --addr=0 --interface=iic --times=3
 
 mpu9250: 1/3.
-mpu9250: fifo 5.
-mpu9250: pitch[0] is 0.09dps.
-mpu9250: roll[0] is 0.86dps.
+mpu9250: fifo 6.
+mpu9250: pitch[0] is 0.08dps.
+mpu9250: roll[0] is 0.85dps.
 mpu9250: yaw[0] is 0.00dps.
 mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.97g.
+mpu9250: acc y[0] is 0.01g.
+mpu9250: acc z[0] is 0.95g.
 mpu9250: gyro x[0] is -0.06dps.
 mpu9250: gyro y[0] is -0.06dps.
-mpu9250: gyro z[0] is -0.06dps.
+mpu9250: gyro z[0] is 0.00dps.
 mpu9250: 2/3.
-mpu9250: fifo 7.
-mpu9250: pitch[0] is 0.07dps.
-mpu9250: roll[0] is 0.80dps.
+mpu9250: fifo 6.
+mpu9250: pitch[0] is 0.06dps.
+mpu9250: roll[0] is 0.77dps.
 mpu9250: yaw[0] is 0.00dps.
 mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.96g.
-mpu9250: gyro x[0] is -0.06dps.
-mpu9250: gyro y[0] is -0.18dps.
+mpu9250: acc y[0] is 0.00g.
+mpu9250: acc z[0] is 0.95g.
+mpu9250: gyro x[0] is 0.00dps.
+mpu9250: gyro y[0] is 0.06dps.
 mpu9250: gyro z[0] is -0.06dps.
 mpu9250: 3/3.
-mpu9250: fifo 7.
-mpu9250: pitch[0] is 0.04dps.
-mpu9250: roll[0] is 0.73dps.
+mpu9250: fifo 6.
+mpu9250: pitch[0] is 0.05dps.
+mpu9250: roll[0] is 0.71dps.
 mpu9250: yaw[0] is 0.00dps.
 mpu9250: acc x[0] is -0.09g.
-mpu9250: acc y[0] is 0.06g.
-mpu9250: acc z[0] is 0.96g.
-mpu9250: gyro x[0] is -0.06dps.
-mpu9250: gyro y[0] is -0.06dps.
+mpu9250: acc y[0] is 0.01g.
+mpu9250: acc z[0] is 0.95g.
+mpu9250: gyro x[0] is -0.12dps.
+mpu9250: gyro y[0] is 0.00dps.
 mpu9250: gyro z[0] is 0.00dps.
 ```
 
 ```shell
-./mpu9250 -c motion -iic 0
+./mpu9250 -e motion --addr=0 --interface=iic
 
 mpu9250: irq motion.
 mpu9250: irq dmp
 mpu9250: irq data ready
+mpu9250: orient irq reverse landscape.
 mpu9250: tap irq x up with 5.
-mpu9250: orient irq landscape.
 mpu9250: finish dmp tap orient motion.
 ```
 
 ```shell
-./mpu9250 -c pedometer 3 -iic 0
+./mpu9250 -e pedometer --addr=0 --interface=iic --times=3
 
 mpu9250: pedometer step count is 7.
 mpu9250: pedometer step count is 8.
@@ -1355,33 +1405,33 @@ mpu9250: pedometer step count is 9.
 ```shell
 ./mpu9250 -h
 
-mpu9250 -i
-	show mpu9250 chip and driver information.
-mpu9250 -h
-	show mpu9250 help.
-mpu9250 -p
-	show mpu9250 pin connections of the current board.
-mpu9250 -t reg (-iic (0 | 1) | -spi)
-	run mpu9250 register test.
-mpu9250 -t read <times> (-iic (0 | 1) | -spi)
-	run mpu9250 read test.times means the test times.
-mpu9250 -t fifo <times> (-iic (0 | 1) | -spi)
-	run mpu9250 fifo test.times means the test times.
-mpu9250 -t dmp <times> (-iic (0 | 1) | -spi)
-	run mpu9250 dmp test.times means the test times.
-mpu9250 -t motion (-iic (0 | 1) | -spi)
-	run mpu9250 motion test.
-mpu9250 -t pedometer <times> (-iic (0 | 1) | -spi)
-	run mpu9250 pedometer test.times means the test times.
-mpu9250 -c read <times> (-iic (0 | 1) | -spi)
-	run mpu9250 read function.times means the read times.
-mpu9250 -c fifo <times> (-iic (0 | 1) | -spi)
-	run mpu9250 fifo function. times means the read times.
-mpu9250 -c dmp <times> (-iic (0 | 1) | -spi)
-	run mpu9250 dmp function.times means the read times.
-mpu9250 -c motion (-iic (0 | 1) | -spi)
-	run mpu9250 motion function.
-mpu9250 -c pedometer <times> (-iic (0 | 1) | -spi)
-	run mpu9250 pedometer function.times means the read times.
+Usage:
+  mpu9250 (-i | --information)
+  mpu9250 (-h | --help)
+  mpu9250 (-p | --port)
+  mpu9250 (-t reg | --test=reg) [--addr=<0 | 1>] [--interface=<iic | spi>]
+  mpu9250 (-t read | --test=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-t fifo | --test=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-t dmp | --test=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-t motion | --test=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]
+  mpu9250 (-t pedometer | --test=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-e read | --example=read) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-e fifo | --example=fifo) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-e dmp | --example=dmp) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+  mpu9250 (-e motion | --example=motion) [--addr=<0 | 1>] [--interface=<iic | spi>]
+  mpu9250 (-e pedometer | --example=pedometer) [--addr=<0 | 1>] [--interface=<iic | spi>] [--times=<num>]
+
+Options:
+      --addr=<0 | 1>      Set the addr pin.([default: 0])
+  -e <read | fifo | dmp | motion | pedometer>, --example=<read | fifo | dmp | motion | pedometer>
+                          Run the driver example.
+  -h, --help              Show the help.
+  -i, --information       Show the chip information.
+      --interface=<iic | spi>
+                          Set the chip interface.([default: iic])
+  -p, --port              Display the pin connections of the current board.
+  -t <reg | read | fifo | dmp | motion | pedometer>, --test=<reg | read | fifo | dmp | motion | pedometer>
+                          Run the driver test.
+      --times=<num>       Set the running times.([default: 3])
 ```
 

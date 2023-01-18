@@ -101,7 +101,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__dmp__tap__orient__mot
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> gs_pitch[128];               </div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> gs_roll[128];                </div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> gs_yaw[128];                 </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">static</span> uint8_t gs_flag;                   </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">static</span> <span class="keyword">volatile</span> uint8_t gs_flag;          </div>
 <div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="group__mpu9250__test__driver.html#ga22fd7c1dfc912417c68c30d3dd094669">   58</a></span>&#160;uint8_t <a class="code" href="group__mpu9250__test__driver.html#ga22fd7c1dfc912417c68c30d3dd094669">mpu9250_dmp_tap_orient_motion_test_irq_handler</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;{</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="group__mpu9250__basic__driver.html#ga70f0287789306f5eb8218c8d8d2f310f">mpu9250_irq_handler</a>(&amp;gs_handle) != 0)</div>

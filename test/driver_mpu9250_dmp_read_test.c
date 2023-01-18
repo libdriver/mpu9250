@@ -231,8 +231,8 @@ uint8_t mpu9250_dmp_read_test(mpu9250_interface_t interface, mpu9250_address_t a
         return 1;
     }
     
-    /* set 200Hz */
-    res = mpu9250_set_sample_rate_divider(&gs_handle, 1000 / (200 - 1));
+    /* set 50Hz */
+    res = mpu9250_set_sample_rate_divider(&gs_handle, 1000 / (50 - 1));
     if (res != 0)
     {
         mpu9250_interface_debug_print("mpu9250: set sample rate divider failed.\n");
