@@ -423,7 +423,7 @@ uint8_t mpu9250_fifo_test(mpu9250_interface_t interface, mpu9250_address_t addr,
         return 1;
     }
     
-    /* push pull */
+    /* push-pull */
     res = mpu9250_set_interrupt_pin_type(&gs_handle, MPU9250_PIN_TYPE_PUSH_PULL);
     if (res != 0)
     {

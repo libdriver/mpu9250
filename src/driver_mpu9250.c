@@ -124,8 +124,8 @@
 #define MPU9250_REG_SIGNAL_PATH_RESET   0x68        /**< signal path reset register */
 #define MPU9250_REG_MOT_DETECT_CTRL     0x69        /**< motion detect ctrl register */
 #define MPU9250_REG_USER_CTRL           0x6A        /**< user ctrl register */
-#define MPU9250_REG_PWR_MGMT_1          0x6B        /**< power mangement 1 register */
-#define MPU9250_REG_PWR_MGMT_2          0x6C        /**< power mangement 2 register */
+#define MPU9250_REG_PWR_MGMT_1          0x6B        /**< power management 1 register */
+#define MPU9250_REG_PWR_MGMT_2          0x6C        /**< power management 2 register */
 #define MPU9250_REG_BANK_SEL            0x6D        /**< bank sel register */
 #define MPU9250_REG_MEM                 0x6F        /**< memory register */
 #define MPU9250_REG_PROGRAM_START       0x70        /**< program start register */
@@ -549,7 +549,7 @@ static uint8_t a_mpu9250_reset_fifo(mpu9250_handle_t *handle)
     }
     user_ctrl &= ~(1 << 6);                                                          /* disable the fifo */
     user_ctrl &= ~(1 << 7);                                                          /* disable the dmp */
-    if (handle->dmp_inited == 1)                                                     /* if use dmp */
+    if (handle->dmp_inited == 1)                                                     /* if we use dmp */
     {
         user_ctrl |= (1 << 2) | (1 << 3);                                            /* reset the fifo and dmp */
     }
@@ -565,7 +565,7 @@ static uint8_t a_mpu9250_reset_fifo(mpu9250_handle_t *handle)
         return 1;                                                                    /* return error */
     }
     handle->delay_ms(50);                                                            /* delay 50 ms */
-    if (handle->dmp_inited == 1)                                                     /* if use dmp */
+    if (handle->dmp_inited == 1)                                                     /* if we use dmp */
     {
         user_ctrl |= (1 << 6) | (1 << 7);                                            /* enable fifo and dmp */
     }
@@ -832,7 +832,7 @@ static uint8_t a_mpu9250_gyro_self_test(mpu9250_handle_t *handle, int32_t *bias_
     else
     {
         gyro_st_al_max = 60.f * 65536.f;                                        /* set st al max */
-        for (i = 0; i < 3; i++)                                                 /* 3 tiimes */
+        for (i = 0; i < 3; i++)                                                 /* 3 times */
         {
             st_shift_cust[i] = (float)(bias_st[i] - bias_regular[i]);           /* set cust */
             if (st_shift_cust[i] < gyro_st_al_max)                              /* check st al max */
@@ -2538,7 +2538,7 @@ uint8_t mpu9250_dmp_set_feature(mpu9250_handle_t *handle, uint16_t mask)
         tmp[2] = 0xA3;                                                                   /* set the param 2 */
         tmp[3] = 0xA3;                                                                   /* set the param 3 */
     }
-    if ((mask & MPU9250_DMP_FEATURE_SEND_ANY_GYRO) != 0)                                 /* set the any gyro */
+    if ((mask & MPU9250_DMP_FEATURE_SEND_ANY_GYRO) != 0)                                 /* set any gyro */
     {
         tmp[4] = 0xC4;                                                                   /* set the param 4 */
         tmp[5] = 0xCC;                                                                   /* set the param 5 */
@@ -2681,29 +2681,14 @@ uint8_t mpu9250_dmp_set_feature(mpu9250_handle_t *handle, uint16_t mask)
         tmp[2] = (uint8_t)(dmp_thresh_2 >> 8);                                           /* set part 2 */
         tmp[3] = (uint8_t)(dmp_thresh_2 & 0xFF);                                         /* set part 3 */
         
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THX, tmp, 2);                  /* wirte tap threshold x */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THX, tmp, 2);                  /* write tap threshold x */
         if (res != 0)                                                                    /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
            
             return 1;                                                                    /* return error */
         }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_36, tmp + 2, 2);               /* wirte register 36 */
-        if (res != 0)                                                                    /* check result */
-        {
-            handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
-           
-            return 1;                                                                    /* return error */
-        }
-        
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THY, tmp, 2);                  /* wirte tap threshold y */
-        if (res != 0)                                                                    /* check result */
-        {
-            handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
-           
-            return 1;                                                                    /* return error */
-        }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_40, tmp + 2, 2);               /* wirte register 40 */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_36, tmp + 2, 2);               /* write register 36 */
         if (res != 0)                                                                    /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
@@ -2711,14 +2696,29 @@ uint8_t mpu9250_dmp_set_feature(mpu9250_handle_t *handle, uint16_t mask)
             return 1;                                                                    /* return error */
         }
         
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THZ, tmp, 2);                  /* wirte tap threshold z */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THY, tmp, 2);                  /* write tap threshold y */
         if (res != 0)                                                                    /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
            
             return 1;                                                                    /* return error */
         }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_44, tmp + 2, 2);               /* wirte register 44 */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_40, tmp + 2, 2);               /* write register 40 */
+        if (res != 0)                                                                    /* check result */
+        {
+            handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
+           
+            return 1;                                                                    /* return error */
+        }
+        
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THZ, tmp, 2);                  /* write tap threshold z */
+        if (res != 0)                                                                    /* check result */
+        {
+            handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
+           
+            return 1;                                                                    /* return error */
+        }
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_44, tmp + 2, 2);               /* write register 44 */
         if (res != 0)                                                                    /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");                         /* write mem failed */
@@ -3233,14 +3233,14 @@ uint8_t mpu9250_dmp_set_tap_thresh(mpu9250_handle_t *handle, mpu9250_axis_t axis
     
     if (axis == MPU9250_AXIS_X)                                                /* if axis x */
     {
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THX, tmp, 2);        /* wirte tap threshold x */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THX, tmp, 2);        /* write tap threshold x */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
            
             return 1;                                                          /* return error */
         }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_36, tmp + 2, 2);     /* wirte register 36 */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_36, tmp + 2, 2);     /* write register 36 */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
@@ -3252,14 +3252,14 @@ uint8_t mpu9250_dmp_set_tap_thresh(mpu9250_handle_t *handle, mpu9250_axis_t axis
     }
     else if (axis == MPU9250_AXIS_Y)                                           /* if axis y */
     {
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THY, tmp, 2);        /* wirte tap threshold y */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THY, tmp, 2);        /* write tap threshold y */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
            
             return 1;                                                          /* return error */
         }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_40, tmp + 2, 2);     /* wirte register 40 */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_40, tmp + 2, 2);     /* write register 40 */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
@@ -3271,14 +3271,14 @@ uint8_t mpu9250_dmp_set_tap_thresh(mpu9250_handle_t *handle, mpu9250_axis_t axis
     }
     else if (axis == MPU9250_AXIS_Z)                                           /* if axis z */
     {
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THZ, tmp, 2);        /* wirte tap threshold z */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_TAP_THZ, tmp, 2);        /* write tap threshold z */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
            
             return 1;                                                          /* return error */
         }
-        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_44, tmp + 2, 2);     /* wirte register 44 */
+        res = a_mpu9250_write_mem(handle, MPU9250_DMP_D_1_44, tmp + 2, 2);     /* write register 44 */
         if (res != 0)                                                          /* check result */
         {
             handle->debug_print("mpu9250: write mem failed.\n");               /* write mem failed */
@@ -4101,10 +4101,10 @@ uint8_t mpu9250_init(mpu9250_handle_t *handle)
         }
     }
     
-    res = a_mpu9250_read(handle, MPU9250_REG_WHO_AM_I, &prev, 1);                   /* read who am i */
+    res = a_mpu9250_read(handle, MPU9250_REG_WHO_AM_I, &prev, 1);                   /* read who am I */
     if (res != 0)                                                                   /* check the result */
     {
-        handle->debug_print("mpu9250: read who am i failed.\n");                    /* read who am i failed */
+        handle->debug_print("mpu9250: read who am i failed.\n");                    /* read who am I failed */
         (void)a_mpu9250_deinit(handle);                                             /* iic or spi deinit */
         
         return 5;                                                                   /* return error */
@@ -4788,10 +4788,10 @@ uint8_t mpu9250_mag_init(mpu9250_handle_t *handle)
             return 1;                                                                       /* return error */
         }
         
-        res = a_mpu9250_mag_read(handle, AK8963_REG_WIA, (uint8_t *)&prev, 1);              /* read who am i */
+        res = a_mpu9250_mag_read(handle, AK8963_REG_WIA, (uint8_t *)&prev, 1);              /* read who am I */
         if (res != 0)                                                                       /* check result */
         {
-            handle->debug_print("mpu9250: mag read who am i failed.\n");                    /* mag read who am i failed */
+            handle->debug_print("mpu9250: mag read who am i failed.\n");                    /* mag read who am I failed */
            
             return 1;                                                                       /* return error */
         }
@@ -4943,10 +4943,10 @@ uint8_t mpu9250_mag_deinit(mpu9250_handle_t *handle)
         return 1;                                                                   /* return error */
     }
     
-    res = a_mpu9250_mag_read(handle, AK8963_REG_WIA, (uint8_t *)&prev, 1);          /* read who am i */
+    res = a_mpu9250_mag_read(handle, AK8963_REG_WIA, (uint8_t *)&prev, 1);          /* read who am I */
     if (res != 0)                                                                   /* check result */
     {
-        handle->debug_print("mpu9250: mag read who am i failed.\n");                /* mag read who am i failed */
+        handle->debug_print("mpu9250: mag read who am i failed.\n");                /* mag read who am I failed */
        
         return 1;                                                                   /* return error */
     }
@@ -5587,10 +5587,10 @@ uint8_t mpu9250_mag_iic_disable(mpu9250_handle_t *handle)
     }
     
     prev = 0x1B;                                                                   /* set the command */
-    res = a_mpu9250_mag_write(handle, AK8963_REG_I2CDIS, (uint8_t *)&prev);        /* write i2cdis */
+    res = a_mpu9250_mag_write(handle, AK8963_REG_I2CDIS, (uint8_t *)&prev);        /* write i2c-dis */
     if (res != 0)                                                                  /* check the result */
     {
-        handle->debug_print("mpu9250: mag write i2cdis failed.\n");                /* mag write i2cdis failed */
+        handle->debug_print("mpu9250: mag write i2cdis failed.\n");                /* mag write i2c-dis failed */
        
         return 1;                                                                  /* return error */
     }
@@ -6299,7 +6299,7 @@ uint8_t mpu9250_device_reset(mpu9250_handle_t *handle)
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6308,7 +6308,7 @@ uint8_t mpu9250_device_reset(mpu9250_handle_t *handle)
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6344,7 +6344,7 @@ uint8_t mpu9250_get_device_reset(mpu9250_handle_t *handle, mpu9250_bool_t *enabl
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6381,7 +6381,7 @@ uint8_t mpu9250_set_clock_source(mpu9250_handle_t *handle, mpu9250_clock_source_
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6390,7 +6390,7 @@ uint8_t mpu9250_set_clock_source(mpu9250_handle_t *handle, mpu9250_clock_source_
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6426,7 +6426,7 @@ uint8_t mpu9250_get_clock_source(mpu9250_handle_t *handle, mpu9250_clock_source_
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6463,7 +6463,7 @@ uint8_t mpu9250_set_ptat(mpu9250_handle_t *handle, mpu9250_bool_t enable)
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6472,7 +6472,7 @@ uint8_t mpu9250_set_ptat(mpu9250_handle_t *handle, mpu9250_bool_t enable)
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6508,7 +6508,7 @@ uint8_t mpu9250_get_ptat(mpu9250_handle_t *handle, mpu9250_bool_t *enable)
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6545,7 +6545,7 @@ uint8_t mpu9250_set_cycle_wake_up(mpu9250_handle_t *handle, mpu9250_bool_t enabl
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6554,7 +6554,7 @@ uint8_t mpu9250_set_cycle_wake_up(mpu9250_handle_t *handle, mpu9250_bool_t enabl
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6590,7 +6590,7 @@ uint8_t mpu9250_get_cycle_wake_up(mpu9250_handle_t *handle, mpu9250_bool_t *enab
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6627,7 +6627,7 @@ uint8_t mpu9250_set_sleep(mpu9250_handle_t *handle, mpu9250_bool_t enable)
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6636,7 +6636,7 @@ uint8_t mpu9250_set_sleep(mpu9250_handle_t *handle, mpu9250_bool_t enable)
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6672,7 +6672,7 @@ uint8_t mpu9250_get_sleep(mpu9250_handle_t *handle, mpu9250_bool_t *enable)
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6709,7 +6709,7 @@ uint8_t mpu9250_set_gyro_standby(mpu9250_handle_t *handle, mpu9250_bool_t enable
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6718,7 +6718,7 @@ uint8_t mpu9250_set_gyro_standby(mpu9250_handle_t *handle, mpu9250_bool_t enable
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");           /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");          /* write power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6754,7 +6754,7 @@ uint8_t mpu9250_get_gyro_standby(mpu9250_handle_t *handle, mpu9250_bool_t *enabl
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");            /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");           /* read power management 1 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6792,7 +6792,7 @@ uint8_t mpu9250_set_standby_mode(mpu9250_handle_t *handle, mpu9250_source_t sour
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_2, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 2 failed.\n");            /* read power mangement 2 failed */
+        handle->debug_print("mpu9250: read power management 2 failed.\n");           /* read power management 2 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6801,7 +6801,7 @@ uint8_t mpu9250_set_standby_mode(mpu9250_handle_t *handle, mpu9250_source_t sour
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_2, (uint8_t *)&prev, 1);      /* write config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 2 failed.\n");           /* write power mangement 2 failed */
+        handle->debug_print("mpu9250: write power management 2 failed.\n");          /* write power management 2 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -6838,7 +6838,7 @@ uint8_t mpu9250_get_standby_mode(mpu9250_handle_t *handle, mpu9250_source_t sour
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_2, (uint8_t *)&prev, 1);       /* read config */
     if (res != 0)                                                                    /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 2 failed.\n");            /* read power mangement 2 failed */
+        handle->debug_print("mpu9250: read power management 2 failed.\n");           /* read power management 2 failed */
        
         return 1;                                                                    /* return error */
     }
@@ -8896,7 +8896,7 @@ uint8_t mpu9250_set_interrupt(mpu9250_handle_t *handle, mpu9250_interrupt_t type
     res = a_mpu9250_write(handle, MPU9250_REG_INT_ENABLE, (uint8_t *)&prev, 1);         /* write interrupt enable */
     if (res != 0)                                                                       /* check result */
     {
-        handle->debug_print("mpu9250: write interrupt enablefailed.\n");                /* write interrupt enable failed */
+        handle->debug_print("mpu9250: write interrupt enable failed.\n");               /* write interrupt enable failed */
        
         return 1;                                                                       /* return error */
     }
@@ -10148,7 +10148,7 @@ uint8_t mpu9250_self_test(mpu9250_handle_t *handle, int32_t gyro_offset_raw[3], 
     res = a_mpu9250_read(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);             /* read config */
     if (res != 0)                                                                          /* check result */
     {
-        handle->debug_print("mpu9250: read power mangement 1 failed.\n");                  /* read power mangement 1 failed */
+        handle->debug_print("mpu9250: read power management 1 failed.\n");                 /* read power management 1 failed */
        
         return 1;                                                                          /* return error */
     }
@@ -10156,7 +10156,7 @@ uint8_t mpu9250_self_test(mpu9250_handle_t *handle, int32_t gyro_offset_raw[3], 
     res = a_mpu9250_write(handle, MPU9250_REG_PWR_MGMT_1, (uint8_t *)&prev, 1);            /* write config */
     if (res != 0)                                                                          /* check result */
     {
-        handle->debug_print("mpu9250: write power mangement 1 failed.\n");                 /* write power mangement 1 failed */
+        handle->debug_print("mpu9250: write power management 1 failed.\n");                /* write power management 1 failed */
        
         return 1;                                                                          /* return error */
     }
@@ -11283,7 +11283,7 @@ uint8_t mpu9250_set_iic_data_out(mpu9250_handle_t *handle, mpu9250_iic_slave_t s
         res = a_mpu9250_write(handle, MPU9250_REG_I2C_SLV0_DO, (uint8_t *)&data, 1);        /* write i2c slv0 do */
         if (res != 0)                                                                       /* check result */
         {
-            handle->debug_print("mpu9250: write i2c slv0 do failed.\n");                    /* write i2c slv0 do failed */
+            handle->debug_print("mpu9250: write i2c slv0 do failed.\n");                    /* write i2c slv0 do fail */
            
             return 1;                                                                       /* return error */
         }
@@ -11293,7 +11293,7 @@ uint8_t mpu9250_set_iic_data_out(mpu9250_handle_t *handle, mpu9250_iic_slave_t s
         res = a_mpu9250_write(handle, MPU9250_REG_I2C_SLV1_DO, (uint8_t *)&data, 1);        /* write i2c slv1 do */
         if (res != 0)                                                                       /* check result */
         {
-            handle->debug_print("mpu9250: write i2c slv1 do failed.\n");                    /* write i2c slv1 do failed */
+            handle->debug_print("mpu9250: write i2c slv1 do failed.\n");                    /* write i2c slv1 do fail */
            
             return 1;                                                                       /* return error */
         }
@@ -11303,7 +11303,7 @@ uint8_t mpu9250_set_iic_data_out(mpu9250_handle_t *handle, mpu9250_iic_slave_t s
         res = a_mpu9250_write(handle, MPU9250_REG_I2C_SLV2_DO, (uint8_t *)&data, 1);        /* write i2c slv2 do */
         if (res != 0)                                                                       /* check result */
         {
-            handle->debug_print("mpu9250: write i2c slv2 do failed.\n");                    /* write i2c slv2 do failed */
+            handle->debug_print("mpu9250: write i2c slv2 do failed.\n");                    /* write i2c slv2 do fail */
            
             return 1;                                                                       /* return error */
         }
@@ -11313,7 +11313,7 @@ uint8_t mpu9250_set_iic_data_out(mpu9250_handle_t *handle, mpu9250_iic_slave_t s
         res = a_mpu9250_write(handle, MPU9250_REG_I2C_SLV3_DO, (uint8_t *)&data, 1);        /* write i2c slv3 do */
         if (res != 0)                                                                       /* check result */
         {
-            handle->debug_print("mpu9250: write i2c slv3 do failed.\n");                    /* write i2c slv3 do failed */
+            handle->debug_print("mpu9250: write i2c slv3 do failed.\n");                    /* write i2c slv3 do fail */
            
             return 1;                                                                       /* return error */
         }
@@ -12862,7 +12862,7 @@ uint8_t mpu9250_set_iic4_data_out(mpu9250_handle_t *handle, uint8_t data)
     res = a_mpu9250_write(handle, MPU9250_REG_I2C_SLV4_DO, (uint8_t *)&data, 1);        /* write i2c slv4 do */
     if (res != 0)                                                                       /* check result */
     {
-        handle->debug_print("mpu9250: write i2c slv4 do failed.\n");                    /* write i2c slv4 do failed */
+        handle->debug_print("mpu9250: write i2c slv4 do failed.\n");                    /* write i2c slv4 do fail */
        
         return 1;                                                                       /* return error */
     }
@@ -13096,7 +13096,7 @@ uint8_t mpu9250_info(mpu9250_info_t *info)
     info->max_current_ma = MAX_CURRENT;                             /* set maximum current */
     info->temperature_max = TEMPERATURE_MAX;                        /* set minimal temperature */
     info->temperature_min = TEMPERATURE_MIN;                        /* set maximum temperature */
-    info->driver_version = DRIVER_VERSION;                          /* set driver verison */
+    info->driver_version = DRIVER_VERSION;                          /* set driver version */
     
     return 0;                                                       /* success return 0 */
 }

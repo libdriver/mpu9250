@@ -498,7 +498,7 @@ uint8_t mpu9250_register_test(mpu9250_interface_t interface, mpu9250_address_t a
     }
     mpu9250_interface_debug_print("mpu9250: check clock source %s.\n", clock_source == MPU9250_CLOCK_SOURCE_STOP_CLOCK ? "ok" : "error");
     
-    /* internel 20.0 MHz */
+    /* internal 20.0 MHz */
     res = mpu9250_set_clock_source(&gs_handle, MPU9250_CLOCK_SOURCE_INTERNAL_20MHZ);
     if (res != 0)
     {
@@ -921,7 +921,7 @@ uint8_t mpu9250_register_test(mpu9250_interface_t interface, mpu9250_address_t a
     res = mpu9250_fifo_set(&gs_handle, data, 8);
     if (res != 0)
     {
-        mpu9250_interface_debug_print("mpu9250: fifo wirte failed.\n");
+        mpu9250_interface_debug_print("mpu9250: fifo write failed.\n");
         (void)mpu9250_deinit(&gs_handle);
        
         return 1;
@@ -1982,7 +1982,7 @@ uint8_t mpu9250_register_test(mpu9250_interface_t interface, mpu9250_address_t a
     /* mpu9250_set_interrupt_pin_type/mpu9250_get_interrupt_pin_type test */
     mpu9250_interface_debug_print("mpu9250: mpu9250_set_interrupt_pin_type/mpu9250_get_interrupt_pin_type test.\n");
     
-    /* push pull */
+    /* push-pull */
     res = mpu9250_set_interrupt_pin_type(&gs_handle, MPU9250_PIN_TYPE_PUSH_PULL);
     if (res != 0)
     {

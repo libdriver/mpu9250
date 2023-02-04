@@ -543,7 +543,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__register__test_8c_sou
 <div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;    }</div>
 <div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;    <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: check clock source %s.\n&quot;</span>, clock_source == <a class="code" href="group__mpu9250__basic__driver.html#ggafb535417000a253cc28596e3d39a2b23aaf55782d8af8f30e1be8a2c8c26eafdc">MPU9250_CLOCK_SOURCE_STOP_CLOCK</a> ? <span class="stringliteral">&quot;ok&quot;</span> : <span class="stringliteral">&quot;error&quot;</span>);</div>
 <div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;    </div>
-<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;    <span class="comment">/* internel 20.0 MHz */</span></div>
+<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;    <span class="comment">/* internal 20.0 MHz */</span></div>
 <div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#ga9ccef86bf71b10f925f1a43b8891f724">mpu9250_set_clock_source</a>(&amp;gs_handle, <a class="code" href="group__mpu9250__basic__driver.html#ggafb535417000a253cc28596e3d39a2b23acbf5efff4aae115436ecf7c4cd225960">MPU9250_CLOCK_SOURCE_INTERNAL_20MHZ</a>);</div>
 <div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160;    <span class="keywordflow">if</span> (res != 0)</div>
 <div class="line"><a name="l00504"></a><span class="lineno">  504</span>&#160;    {</div>
@@ -966,7 +966,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__register__test_8c_sou
 <div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gab91cc6dd61eb699c90ac1e0deba763fc">mpu9250_fifo_set</a>(&amp;gs_handle, data, 8);</div>
 <div class="line"><a name="l00922"></a><span class="lineno">  922</span>&#160;    <span class="keywordflow">if</span> (res != 0)</div>
 <div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160;    {</div>
-<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;        <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: fifo wirte failed.\n&quot;</span>);</div>
+<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;        <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: fifo write failed.\n&quot;</span>);</div>
 <div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160;        (void)<a class="code" href="group__mpu9250__basic__driver.html#ga91cfe80c70e7e102d6e5a1def3a2ee6e">mpu9250_deinit</a>(&amp;gs_handle);</div>
 <div class="line"><a name="l00926"></a><span class="lineno">  926</span>&#160;       </div>
 <div class="line"><a name="l00927"></a><span class="lineno">  927</span>&#160;        <span class="keywordflow">return</span> 1;</div>
@@ -2027,7 +2027,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__register__test_8c_sou
 <div class="line"><a name="l01982"></a><span class="lineno"> 1982</span>&#160;    <span class="comment">/* mpu9250_set_interrupt_pin_type/mpu9250_get_interrupt_pin_type test */</span></div>
 <div class="line"><a name="l01983"></a><span class="lineno"> 1983</span>&#160;    <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: mpu9250_set_interrupt_pin_type/mpu9250_get_interrupt_pin_type test.\n&quot;</span>);</div>
 <div class="line"><a name="l01984"></a><span class="lineno"> 1984</span>&#160;    </div>
-<div class="line"><a name="l01985"></a><span class="lineno"> 1985</span>&#160;    <span class="comment">/* push pull */</span></div>
+<div class="line"><a name="l01985"></a><span class="lineno"> 1985</span>&#160;    <span class="comment">/* push-pull */</span></div>
 <div class="line"><a name="l01986"></a><span class="lineno"> 1986</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gad41a29c64249b8ad014418deacffad92">mpu9250_set_interrupt_pin_type</a>(&amp;gs_handle, <a class="code" href="group__mpu9250__basic__driver.html#gga3ce5cd6961f3ebda61bef61dc30b34d2aa0be0047515a1c28eddb8c5f1ddae2ad">MPU9250_PIN_TYPE_PUSH_PULL</a>);</div>
 <div class="line"><a name="l01987"></a><span class="lineno"> 1987</span>&#160;    <span class="keywordflow">if</span> (res != 0)</div>
 <div class="line"><a name="l01988"></a><span class="lineno"> 1988</span>&#160;    {</div>
