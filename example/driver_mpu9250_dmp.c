@@ -456,7 +456,7 @@ uint8_t mpu9250_dmp_init(mpu9250_interface_t interface, mpu9250_address_t addr_p
     
     if (tap_callback != NULL)
     {
-        /* set the default motion theshold */
+        /* set the default motion threshold */
         res = mpu9250_motion_threshold_convert_to_register(&gs_handle, MPU9250_DMP_DEFAULT_MOTION_THRESHOLD, &reg);
         if (res != 0)
         {

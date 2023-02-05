@@ -247,7 +247,7 @@ uint8_t mpu9250(uint8_t argc, char **argv)
         {"times", required_argument, NULL, 3},
         {NULL, 0, NULL, 0},
     };
-    char type[33] = "unknow";
+    char type[33] = "unknown";
     uint32_t times = 3;
     mpu9250_address_t addr = MPU9250_ADDRESS_AD0_LOW;
     mpu9250_interface_t interface = MPU9250_INTERFACE_IIC;
@@ -1007,7 +1007,7 @@ int main(uint8_t argc, char **argv)
     }
     else
     {
-        mpu9250_interface_debug_print("mpu9250: unknow status code.\n");
+        mpu9250_interface_debug_print("mpu9250: unknown status code.\n");
     }
 
     return 0;
