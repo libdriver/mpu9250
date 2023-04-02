@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['debug_5fprint_23',['debug_print',['../structmpu9250__handle__s.html#ab0f5d5f0b60d6211a5583515dff5ef8a',1,'mpu9250_handle_s']]],
-  ['delay_5fms_24',['delay_ms',['../structmpu9250__handle__s.html#ac7e3b9780a7f8a7485e3974e18a4ae8e',1,'mpu9250_handle_s']]],
-  ['dmp_5finited_25',['dmp_inited',['../structmpu9250__handle__s.html#a8c063ce2e3bc077ae192fc6d7527768d',1,'mpu9250_handle_s']]],
-  ['dmp_5forient_5fcallback_26',['dmp_orient_callback',['../structmpu9250__handle__s.html#a6d7df197a42b39ff078cf99a621d9ada',1,'mpu9250_handle_s']]],
-  ['dmp_5ftap_5fcallback_27',['dmp_tap_callback',['../structmpu9250__handle__s.html#a51d8f5ed73d173ac0fdbbcefa8cce67a',1,'mpu9250_handle_s']]],
+  ['debug_5fprint_23',['debug_print',['../structmpu9250__handle__s.html#a769d5b3a6c14790a0e126e8fe70b384b',1,'mpu9250_handle_s']]],
+  ['delay_5fms_24',['delay_ms',['../structmpu9250__handle__s.html#a406c9433252b7366de417b7a60915c81',1,'mpu9250_handle_s']]],
+  ['dmp_5finited_25',['dmp_inited',['../structmpu9250__handle__s.html#a1316cdc70d1edc149d9f81612d972efc',1,'mpu9250_handle_s']]],
+  ['dmp_5forient_5fcallback_26',['dmp_orient_callback',['../structmpu9250__handle__s.html#aacdc9ad9e84581d2899b222ea8f32d92',1,'mpu9250_handle_s']]],
+  ['dmp_5ftap_5fcallback_27',['dmp_tap_callback',['../structmpu9250__handle__s.html#a2a9335e7e0cb548b47827cdc2cded80d',1,'mpu9250_handle_s']]],
   ['driver_5fmpu9250_2ec_28',['driver_mpu9250.c',['../driver__mpu9250_8c.html',1,'']]],
   ['driver_5fmpu9250_2eh_29',['driver_mpu9250.h',['../driver__mpu9250_8h.html',1,'']]],
   ['driver_5fmpu9250_5fbasic_2ec_30',['driver_mpu9250_basic.c',['../driver__mpu9250__basic_8c.html',1,'']]],
@@ -40,6 +40,6 @@ var searchData=
   ['driver_5fmpu9250_5fread_5ftest_2eh_60',['driver_mpu9250_read_test.h',['../driver__mpu9250__read__test_8h.html',1,'']]],
   ['driver_5fmpu9250_5fregister_5ftest_2ec_61',['driver_mpu9250_register_test.c',['../driver__mpu9250__register__test_8c.html',1,'']]],
   ['driver_5fmpu9250_5fregister_5ftest_2eh_62',['driver_mpu9250_register_test.h',['../driver__mpu9250__register__test_8h.html',1,'']]],
-  ['driver_5fversion_63',['driver_version',['../structmpu9250__info__s.html#a475be90a23428afd238f5bdd7ec729dd',1,'mpu9250_info_s']]],
+  ['driver_5fversion_63',['driver_version',['../structmpu9250__info__s.html#a41b0bd442708b70d252c50b92c75265a',1,'mpu9250_info_s']]],
   ['driver_5fversion_64',['DRIVER_VERSION',['../driver__mpu9250_8c.html#ae578001fe043b4cca7a0edd801cfe9c4',1,'driver_mpu9250.c']]]
 ];
