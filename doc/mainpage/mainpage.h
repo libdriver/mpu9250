@@ -1,6 +1,6 @@
 /**
  * @mainpage  LibDriver MPU9250
- * @brief     libdriver mpu9250 is a full function driver of mpu9250 and it can run in both MCU and Linux platform.
+ * @brief     LibDriver MPU9250 is a full function driver of MPU9250 and it can run in both MCU and Linux platform.
  * @version   1.0.0
  * @author    Shifeng Li
  *
