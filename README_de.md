@@ -47,7 +47,7 @@ LibDriver MPU9250 ist der voll funktionsfähige Treiber von mpu9250, der von Lib
 
 Verweisen Sie auf eine plattformunabhängige IIC, SPI-Schnittstellenvorlage und stellen Sie Ihren Plattform-IIC, SPI-Treiber fertig.
 
-Fügen Sie /src, /interface und /example zu Ihrem Projekt hinzu.
+Fügen Sie das Verzeichnis /src, den Schnittstellentreiber für Ihre Plattform und Ihre eigenen Treiber zu Ihrem Projekt hinzu. Wenn Sie die Standardbeispieltreiber verwenden möchten, fügen Sie das Verzeichnis /example zu Ihrem Projekt hinzu.
 
 ### Nutzung
 
