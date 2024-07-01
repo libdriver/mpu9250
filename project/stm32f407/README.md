@@ -1079,9 +1079,9 @@ mpu9250: enable feature send raw accel.
 mpu9250: enable feature send cal gyro.
 mpu9250: enable feature gyro cal.
 mpu9250: fifo 3.
-mpu9250: pitch[0] is -0.06dps.
-mpu9250: roll[0] is 1.16dps.
-mpu9250: yaw[0] is -0.02dps.
+mpu9250: pitch[0] is -0.06deg.
+mpu9250: roll[0] is 1.16deg.
+mpu9250: yaw[0] is -0.02deg.
 mpu9250: acc x[0] is -0.09g.
 mpu9250: acc y[0] is 0.01g.
 mpu9250: acc z[0] is 0.95g.
@@ -1089,9 +1089,9 @@ mpu9250: gyro x[0] is -0.12dps.
 mpu9250: gyro y[0] is -0.06dps.
 mpu9250: gyro z[0] is -0.06dps.
 mpu9250: fifo 6.
-mpu9250: pitch[0] is -0.06dps.
-mpu9250: roll[0] is 1.14dps.
-mpu9250: yaw[0] is -0.02dps.
+mpu9250: pitch[0] is -0.06deg.
+mpu9250: roll[0] is 1.14deg.
+mpu9250: yaw[0] is -0.02deg.
 mpu9250: acc x[0] is -0.08g.
 mpu9250: acc y[0] is 0.01g.
 mpu9250: acc z[0] is 0.94g.
@@ -1099,9 +1099,9 @@ mpu9250: gyro x[0] is -0.06dps.
 mpu9250: gyro y[0] is 0.00dps.
 mpu9250: gyro z[0] is -0.06dps.
 mpu9250: fifo 7.
-mpu9250: pitch[0] is -0.06dps.
-mpu9250: roll[0] is 1.12dps.
-mpu9250: yaw[0] is -0.02dps.
+mpu9250: pitch[0] is -0.06deg.
+mpu9250: roll[0] is 1.12deg.
+mpu9250: yaw[0] is -0.02deg.
 mpu9250: acc x[0] is -0.09g.
 mpu9250: acc y[0] is 0.01g.
 mpu9250: acc z[0] is 0.95g.
@@ -1315,9 +1315,9 @@ mpu9250 -e dmp --addr=0 --interface=iic --times=3
 
 mpu9250: 1/3.
 mpu9250: fifo 6.
-mpu9250: pitch[0] is 0.01dps.
-mpu9250: roll[0] is 0.82dps.
-mpu9250: yaw[0] is -0.03dps.
+mpu9250: pitch[0] is 0.01deg.
+mpu9250: roll[0] is 0.82deg.
+mpu9250: yaw[0] is -0.03deg.
 mpu9250: acc x[0] is -0.08g.
 mpu9250: acc y[0] is 0.02g.
 mpu9250: acc z[0] is 0.95g.
@@ -1326,9 +1326,9 @@ mpu9250: gyro y[0] is -0.12dps.
 mpu9250: gyro z[0] is -0.06dps.
 mpu9250: 2/3.
 mpu9250: fifo 7.
-mpu9250: pitch[0] is -0.01dps.
-mpu9250: roll[0] is 0.75dps.
-mpu9250: yaw[0] is -0.03dps.
+mpu9250: pitch[0] is -0.01deg.
+mpu9250: roll[0] is 0.75deg.
+mpu9250: yaw[0] is -0.03deg.
 mpu9250: acc x[0] is -0.07g.
 mpu9250: acc y[0] is 0.02g.
 mpu9250: acc z[0] is 0.95g.
@@ -1337,9 +1337,9 @@ mpu9250: gyro y[0] is -0.18dps.
 mpu9250: gyro z[0] is -0.12dps.
 mpu9250: 3/3.
 mpu9250: fifo 8.
-mpu9250: pitch[0] is -0.04dps.
-mpu9250: roll[0] is 0.69dps.
-mpu9250: yaw[0] is -0.04dps.
+mpu9250: pitch[0] is -0.04deg.
+mpu9250: roll[0] is 0.69deg.
+mpu9250: yaw[0] is -0.04deg.
 mpu9250: acc x[0] is -0.08g.
 mpu9250: acc y[0] is 0.02g.
 mpu9250: acc z[0] is 0.95g.

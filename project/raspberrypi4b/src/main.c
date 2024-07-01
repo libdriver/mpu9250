@@ -715,9 +715,9 @@ uint8_t mpu9250(uint8_t argc, char **argv)
                 /* output */
                 mpu9250_interface_debug_print("mpu9250: %d/%d.\n", i + 1, times);
                 mpu9250_interface_debug_print("mpu9250: fifo %d.\n", len);
-                mpu9250_interface_debug_print("mpu9250: pitch[0] is %0.2fdps.\n", gs_pitch[0]);
-                mpu9250_interface_debug_print("mpu9250: roll[0] is %0.2fdps.\n", gs_roll[0]);
-                mpu9250_interface_debug_print("mpu9250: yaw[0] is %0.2fdps.\n", gs_yaw[0]);
+                mpu9250_interface_debug_print("mpu9250: pitch[0] is %0.2fdeg.\n", gs_pitch[0]);
+                mpu9250_interface_debug_print("mpu9250: roll[0] is %0.2fdeg.\n", gs_roll[0]);
+                mpu9250_interface_debug_print("mpu9250: yaw[0] is %0.2fdeg.\n", gs_yaw[0]);
                 mpu9250_interface_debug_print("mpu9250: acc x[0] is %0.2fg.\n", gs_accel_g[0][0]);
                 mpu9250_interface_debug_print("mpu9250: acc y[0] is %0.2fg.\n", gs_accel_g[0][1]);
                 mpu9250_interface_debug_print("mpu9250: acc z[0] is %0.2fg.\n", gs_accel_g[0][2]);

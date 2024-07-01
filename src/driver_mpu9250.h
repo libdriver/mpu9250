@@ -729,7 +729,7 @@ uint8_t mpu9250_irq_handler(mpu9250_handle_t *handle);
  * @param[in] *handle points to an mpu9250 handle structure
  * @return    status code
  *            - 0 success
- *            - 1 iic initialization failed
+ *            - 1 iic or spi initialization failed
  *            - 2 handle is NULL
  *            - 3 linked functions is NULL
  *            - 4 reset failed
