@@ -197,7 +197,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__fifo_8c_source.html',
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    }</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    </div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="comment">/* set the default rate */</span></div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gab8ef8d4cc839a2fbcb55e65330b1ba0b">mpu9250_set_sample_rate_divider</a>(&amp;gs_handle, 1000 / (<a class="code" href="group__mpu9250__example__driver.html#ga9a513d232aa5cd19f67c5ac17bdc7661">MPU9250_FIFO_DEFAULT_RATE</a> - 1));</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gab8ef8d4cc839a2fbcb55e65330b1ba0b">mpu9250_set_sample_rate_divider</a>(&amp;gs_handle, (1000 / <a class="code" href="group__mpu9250__example__driver.html#ga9a513d232aa5cd19f67c5ac17bdc7661">MPU9250_FIFO_DEFAULT_RATE</a>) - 1);</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordflow">if</span> (res != 0)</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    {</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;        <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: set sample rate divider failed.\n&quot;</span>);</div>

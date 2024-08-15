@@ -253,7 +253,7 @@ $(document).ready(function(){initNavTree('driver__mpu9250__dmp__pedometer__test_
 <div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    }</div>
 <div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    </div>
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="comment">/* set 50Hz */</span></div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gab8ef8d4cc839a2fbcb55e65330b1ba0b">mpu9250_set_sample_rate_divider</a>(&amp;gs_handle, 1000 / (50 - 1));</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    res = <a class="code" href="group__mpu9250__basic__driver.html#gab8ef8d4cc839a2fbcb55e65330b1ba0b">mpu9250_set_sample_rate_divider</a>(&amp;gs_handle, (1000 / 50) - 1);</div>
 <div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordflow">if</span> (res != 0)</div>
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    {</div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <a class="code" href="group__mpu9250__interface__driver.html#ga15e531f463207b6917de60a4e3354ddd">mpu9250_interface_debug_print</a>(<span class="stringliteral">&quot;mpu9250: set sample rate divider failed.\n&quot;</span>);</div>

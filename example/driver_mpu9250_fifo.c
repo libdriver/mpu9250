@@ -159,7 +159,7 @@ uint8_t mpu9250_fifo_init(mpu9250_interface_t interface, mpu9250_address_t addr_
     }
     
     /* set the default rate */
-    res = mpu9250_set_sample_rate_divider(&gs_handle, 1000 / (MPU9250_FIFO_DEFAULT_RATE - 1));
+    res = mpu9250_set_sample_rate_divider(&gs_handle, (1000 / MPU9250_FIFO_DEFAULT_RATE) - 1);
     if (res != 0)
     {
         mpu9250_interface_debug_print("mpu9250: set sample rate divider failed.\n");
