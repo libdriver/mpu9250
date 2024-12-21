@@ -50,9 +50,9 @@ extern "C"{
 
 /**
  * @brief     read test
- * @param[in] interface is the used interface
- * @param[in] addr is the iic device address
- * @param[in] times is the test times
+ * @param[in] interface used interface
+ * @param[in] addr iic device address
+ * @param[in] times test times
  * @return    status code
  *            - 0 success
  *            - 1 test failed

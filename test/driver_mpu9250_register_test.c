@@ -41,8 +41,8 @@ static mpu9250_handle_t gs_handle;        /**< mpu9250 handle */
 
 /**
  * @brief     register test
- * @param[in] interface is the used interface
- * @param[in] addr is the iic device address
+ * @param[in] interface used interface
+ * @param[in] addr iic device address
  * @return    status code
  *            - 0 success
  *            - 1 test failed
