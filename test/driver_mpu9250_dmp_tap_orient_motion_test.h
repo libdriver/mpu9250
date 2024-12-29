@@ -59,8 +59,8 @@ uint8_t mpu9250_dmp_tap_orient_motion_test_irq_handler(void);
 
 /**
  * @brief     dmp test
- * @param[in] interface is the used interface
- * @param[in] addr is the iic device address
+ * @param[in] interface used interface
+ * @param[in] addr iic device address
  * @return    status code
  *            - 0 success
  *            - 1 test failed

@@ -40,8 +40,8 @@ static mpu9250_handle_t gs_handle;        /**< mpu9250 handle */
 
 /**
  * @brief     basic example init
- * @param[in] interface is the used interface
- * @param[in] addr_pin is the iic device address
+ * @param[in] interface used interface
+ * @param[in] addr_pin iic device address
  * @return    status code
  *            - 0 success
  *            - 1 init failed
@@ -640,7 +640,7 @@ uint8_t mpu9250_basic_init(mpu9250_interface_t interface, mpu9250_address_t addr
 
 /**
  * @brief      basic example read temperature
- * @param[out] *degrees points to a converted data buffer
+ * @param[out] *degrees pointer to a converted data buffer
  * @return     status code
  *             - 0 success
  *             - 1 read temperature failed
@@ -661,9 +661,9 @@ uint8_t mpu9250_basic_read_temperature(float *degrees)
 
 /**
  * @brief      basic example read
- * @param[out] *g points to a converted data buffer
- * @param[out] *dps points to a converted data buffer
- * @param[out] *ut points to a converted data buffer
+ * @param[out] *g pointer to a converted data buffer
+ * @param[out] *dps pointer to a converted data buffer
+ * @param[out] *ut pointer to a converted data buffer
  * @return     status code
  *             - 0 success
  *             - 1 read failed
