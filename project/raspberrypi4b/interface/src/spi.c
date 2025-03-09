@@ -43,7 +43,7 @@
  * @brief      spi bus init
  * @param[in]  *name pointer to a spi device name buffer
  * @param[out] *fd pointer to a spi device handle buffer
- * @param[in]  mode spi mode.
+ * @param[in]  mode spi mode
  * @param[in]  freq spi running frequence
  * @return     status code
  *             - 0 success
