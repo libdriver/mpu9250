@@ -124,7 +124,7 @@ uint8_t mpu9250_interface_iic_write(uint8_t addr, uint8_t reg, uint8_t *buf, uin
  */
 uint8_t mpu9250_interface_spi_init(void)
 {
-    return spi_init(SPI_DEVICE_NAME, &gs_spi_fd, SPI_MODE_TYPE_3, 1000 * 500);
+    return spi_init(SPI_DEVICE_NAME, &gs_spi_fd, SPI_MODE_TYPE_3, 1000 * 1000);
 }
 
 /**
