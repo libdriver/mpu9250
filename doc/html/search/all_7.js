@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['orient_793',['orient',['../structmpu9250__handle__s.html#a9ffc92f060368a3946c73ce1c3528452',1,'mpu9250_handle_s']]]
+  ['libdriver_20mpu9250_0',['LibDriver MPU9250',['../index.html',1,'']]],
+  ['link_20driver_20function_1',['mpu9250 link driver function',['../group__mpu9250__link__driver.html',1,'']]]
 ];
