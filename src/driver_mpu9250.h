@@ -242,8 +242,8 @@ typedef enum
  */
 typedef enum  
 {
-    MPU9250_PIN_LEVEL_HIGH = 0x00,        /**< active low */
-    MPU9250_PIN_LEVEL_LOW  = 0x01,        /**< active high */
+    MPU9250_PIN_LEVEL_HIGH = 0x00,        /**< active high */
+    MPU9250_PIN_LEVEL_LOW  = 0x01,        /**< active low */
 } mpu9250_pin_level_t;
 
 /**
@@ -3355,7 +3355,7 @@ uint8_t mpu9250_dmp_get_tap_thresh(mpu9250_handle_t *handle, mpu9250_axis_t axis
  *                - 4 dmp is not inited
  *                - 5 quat check error
  *                - 6 fifo overflow
- *                - 7 fifo data is too little
+ *                - 7 fifo length is not enough
  *                - 8 no data
  * @note          none
  */

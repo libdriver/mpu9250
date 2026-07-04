@@ -3089,7 +3089,7 @@ $(function(){initNavTree('driver__mpu9250_8c_source.html','',''); });
 <div class="line"><a id="l03516" name="l03516"></a><span class="lineno"> 3516</span>    }</div>
 <div class="line"><a id="l03517" name="l03517"></a><span class="lineno"> 3517</span>    <span class="keywordflow">if</span> (count &lt; len)                                                                                                      <span class="comment">/* check the count */</span></div>
 <div class="line"><a id="l03518" name="l03518"></a><span class="lineno"> 3518</span>    {</div>
-<div class="line"><a id="l03519" name="l03519"></a><span class="lineno"> 3519</span>        handle-&gt;<a class="code hl_variable" href="structmpu9250__handle__s.html#a769d5b3a6c14790a0e126e8fe70b384b">debug_print</a>(<span class="stringliteral">&quot;mpu9250: fifo data is too little.\n&quot;</span>);                                                       <span class="comment">/* fifo data is too little */</span></div>
+<div class="line"><a id="l03519" name="l03519"></a><span class="lineno"> 3519</span>        handle-&gt;<a class="code hl_variable" href="structmpu9250__handle__s.html#a769d5b3a6c14790a0e126e8fe70b384b">debug_print</a>(<span class="stringliteral">&quot;mpu9250: fifo length is not enough.\n&quot;</span>);                                                     <span class="comment">/* fifo length is not enough */</span></div>
 <div class="line"><a id="l03520" name="l03520"></a><span class="lineno"> 3520</span>        </div>
 <div class="line"><a id="l03521" name="l03521"></a><span class="lineno"> 3521</span>        <span class="keywordflow">return</span> 7;                                                                                                         <span class="comment">/* return error */</span></div>
 <div class="line"><a id="l03522" name="l03522"></a><span class="lineno"> 3522</span>    }</div>
@@ -4104,7 +4104,7 @@ $(function(){initNavTree('driver__mpu9250_8c_source.html','',''); });
 <div class="line"><a id="l04649" name="l04649"></a><span class="lineno"> 4649</span>        <span class="keywordflow">return</span> 1;                                                            <span class="comment">/* return error */</span></div>
 <div class="line"><a id="l04650" name="l04650"></a><span class="lineno"> 4650</span>    }</div>
 <div class="line"><a id="l04651" name="l04651"></a><span class="lineno"> 4651</span>    *raw = (int16_t)((uint16_t)buf[0] &lt;&lt; 8) | buf[1];                        <span class="comment">/* get the raw */</span></div>
-<div class="line"><a id="l04652" name="l04652"></a><span class="lineno"> 4652</span>    *degrees = (float)(*raw) / 321.0f + 21.0f;                               <span class="comment">/* convert the degrees */</span></div>
+<div class="line"><a id="l04652" name="l04652"></a><span class="lineno"> 4652</span>    *degrees = (float)(*raw) / 333.87f + 21.0f;                              <span class="comment">/* convert the degrees */</span></div>
 <div class="line"><a id="l04653" name="l04653"></a><span class="lineno"> 4653</span>    </div>
 <div class="line"><a id="l04654" name="l04654"></a><span class="lineno"> 4654</span>    <span class="keywordflow">return</span> 0;                                                                <span class="comment">/* success return 0 */</span></div>
 <div class="line"><a id="l04655" name="l04655"></a><span class="lineno"> 4655</span>}</div>

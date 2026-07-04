@@ -142,8 +142,8 @@
 #define AK8963_REG_WIA                  0x00        /**< device id register */
 #define AK8963_REG_INFO                 0x01        /**< information register */
 #define AK8963_REG_ST1                  0x02        /**< status 1 register */
-#define AK8963_REG_HXL                  0x03        /**< x axis data high register */
-#define AK8963_REG_HXH                  0x04        /**< x axis data low register */
+#define AK8963_REG_HXL                  0x03        /**< x axis data low register */
+#define AK8963_REG_HXH                  0x04        /**< x axis data high register */
 #define AK8963_REG_HYL                  0x05        /**< y axis data high register */
 #define AK8963_REG_HYH                  0x06        /**< y axis data low register */
 #define AK8963_REG_HZL                  0x07        /**< z axis data high register */
@@ -3421,7 +3421,7 @@ uint8_t mpu9250_dmp_get_tap_thresh(mpu9250_handle_t *handle, mpu9250_axis_t axis
  *                - 4 dmp is not inited
  *                - 5 quat check error
  *                - 6 fifo overflow
- *                - 7 fifo data is too little
+ *                - 7 fifo length is not enough
  *                - 8 no data
  * @note          none
  */
@@ -3516,7 +3516,7 @@ uint8_t mpu9250_dmp_read(mpu9250_handle_t *handle,
     }
     if (count < len)                                                                                                      /* check the count */
     {
-        handle->debug_print("mpu9250: fifo data is too little.\n");                                                       /* fifo data is too little */
+        handle->debug_print("mpu9250: fifo length is not enough.\n");                                                     /* fifo length is not enough */
         
         return 7;                                                                                                         /* return error */
     }
@@ -4649,7 +4649,7 @@ uint8_t mpu9250_read_temperature(mpu9250_handle_t *handle, int16_t (*raw), float
         return 1;                                                            /* return error */
     }
     *raw = (int16_t)((uint16_t)buf[0] << 8) | buf[1];                        /* get the raw */
-    *degrees = (float)(*raw) / 321.0f + 21.0f;                               /* convert the degrees */
+    *degrees = (float)(*raw) / 333.87f + 21.0f;                              /* convert the degrees */
     
     return 0;                                                                /* success return 0 */
 }
