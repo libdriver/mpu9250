@@ -144,10 +144,10 @@
 #define AK8963_REG_ST1                  0x02        /**< status 1 register */
 #define AK8963_REG_HXL                  0x03        /**< x axis data low register */
 #define AK8963_REG_HXH                  0x04        /**< x axis data high register */
-#define AK8963_REG_HYL                  0x05        /**< y axis data high register */
-#define AK8963_REG_HYH                  0x06        /**< y axis data low register */
-#define AK8963_REG_HZL                  0x07        /**< z axis data high register */
-#define AK8963_REG_HZH                  0x08        /**< z axis data low register */
+#define AK8963_REG_HYL                  0x05        /**< y axis data low register */
+#define AK8963_REG_HYH                  0x06        /**< y axis data high register */
+#define AK8963_REG_HZL                  0x07        /**< z axis data low register */
+#define AK8963_REG_HZH                  0x08        /**< z axis data high register */
 #define AK8963_REG_ST2                  0x09        /**< status 2 register */
 #define AK8963_REG_CNTL1                0x0A        /**< control 1 register */
 #define AK8963_REG_CNTL2                0x0B        /**< control 2 register */
@@ -944,11 +944,11 @@ static uint8_t a_mpu9250_get_st_biases(mpu9250_handle_t *handle,
     }
     if (hw_test_enable != 0)                                                                        /* if enable */
     {
-        data[0] = 0x18 | 0xE0;                                                                      /* enable 2g and test */
+        data[0] = 0x18 | 0xE0;                                                                      /* enable 16g and test */
     }
     else
     {
-        data[0] = 0x18;                                                                             /* enable 2g */
+        data[0] = 0x18;                                                                             /* enable 16g */
     }
     res = a_mpu9250_write(handle, MPU9250_REG_ACCEL_CONFIG, data, 1);                               /* read the accel config */
     if (res != 0)                                                                                   /* check the result */
@@ -8480,7 +8480,7 @@ uint8_t mpu9250_set_interrupt_latch(mpu9250_handle_t *handle, mpu9250_bool_t ena
         return 1;                                                                       /* return error */
     }
     prev &= ~(1 << 5);                                                                  /* clear config */
-    prev |= (!enable) << 5;                                                             /* set config */
+    prev |= enable << 5;                                                                /* set config */
     res = a_mpu9250_write(handle, MPU9250_REG_INT_PIN_CFG, (uint8_t *)&prev, 1);        /* write interrupt pin */
     if (res != 0)                                                                       /* check result */
     {
@@ -8524,7 +8524,7 @@ uint8_t mpu9250_get_interrupt_latch(mpu9250_handle_t *handle, mpu9250_bool_t *en
        
         return 1;                                                                       /* return error */
     }
-    *enable = (mpu9250_bool_t)(!((prev >> 5) & 0x01));                                  /* get the bool */
+    *enable = (mpu9250_bool_t)((prev >> 5) & 0x01);                                     /* get the bool */
     
     return 0;                                                                           /* success return 0 */
 }
@@ -9421,8 +9421,8 @@ uint8_t mpu9250_set_accelerometer_x_offset(mpu9250_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu9250_write(handle, MPU9250_REG_XA_OFFSET_H, buf, 2);        /* write xa offset */
     if (res != 0)                                                          /* check result */
     {
@@ -9466,7 +9466,8 @@ uint8_t mpu9250_get_accelerometer_x_offset(mpu9250_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                                  buf[1])) >> 1);         /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
@@ -9496,8 +9497,8 @@ uint8_t mpu9250_set_accelerometer_y_offset(mpu9250_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu9250_write(handle, MPU9250_REG_YA_OFFSET_H, buf, 2);        /* write ya offset */
     if (res != 0)                                                          /* check result */
     {
@@ -9541,7 +9542,8 @@ uint8_t mpu9250_get_accelerometer_y_offset(mpu9250_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                     buf[1])) >> 1);                      /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
@@ -9571,8 +9573,8 @@ uint8_t mpu9250_set_accelerometer_z_offset(mpu9250_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu9250_write(handle, MPU9250_REG_ZA_OFFSET_H, buf, 2);        /* write za offset */
     if (res != 0)                                                          /* check result */
     {
@@ -9616,7 +9618,8 @@ uint8_t mpu9250_get_accelerometer_z_offset(mpu9250_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                              buf[1])) >> 1);             /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
